@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+[[ -z $1 ]] && VERSION=12.0.2 || VERSION=$1
+
+DIRNAME=tor-browser
+TARGET=/opt/$DIRNAME
+
+cd /tmp
+
+# Download
+wget "https://www.torproject.org/dist/torbrowser/${VERSION}/tor-browser-linux64-${VERSION}_ALL.tar.xz"
+wget https://www.torproject.org/dist/torbrowser/${VERSION}/tor-browser-linux64-${VERSION}_ALL.tar.xz.asc
+
+# Verify PGP ssignature
+curl -s https://openpgpkey.torproject.org/.well-known/openpgpkey/torproject.org/hu/kounek7zrdx745qydx6p59t9mqjpuhdf | gpg --import -
+
+gpg \
+    --output ./tor.keyring \
+    --export 0xEF6E286DDA85EA2A4BA7DE684E2C6E8793298290
+gpgv \
+    --keyring ./tor.keyring \
+    tor-browser-linux64-${VERSION}_ALL.tar.xz.asc \
+    tor-browser-linux64-${VERSION}_ALL.tar.xz
+
+if [[ $? -ne 0 ]]; then
+    echo "An error occured while verifying"
+    exit 1
+fi
+
+# Extract
+tar -xvf tor-browser-linux64-${VERSION}_ALL.tar.xz
+
+# Install
+sudo mv $DIRNAME $TARGET
+cd $TARGET
+./start-tor-browser.desktop --register-app
+
+sudo ln -sf $TARGET/Browser/start-tor-browser /usr/bin/tor-browser
+
+sudo update-desktop-database ~/.local/share/applications/
