@@ -20,4 +20,4 @@ Name           | Status
 wall.sh | ✅
 install_discord.sh | ✅
 install_tor.sh | ✅
-install_docker.sh | ⚠️
+snake.sh | ⚠️
