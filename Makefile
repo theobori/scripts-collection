@@ -4,7 +4,7 @@ PREFIX_DIR=/usr/local
 INSTALL_DIR = $(PREFIX_DIR)/bin
 
 # Scripts path
-OPT_DIR = $(PREFIX_DIR)/opt/shell-collection
+OPT_DIR = $(PREFIX_DIR)/opt/scripts-collection
 
 # Executable scripts
 SRC = $(wildcard *.sh)
@@ -38,5 +38,6 @@ clean:
 
 uninstall: clean
 	$(RM) $(SCRIPTS)
+	$(RM) $(OPT_DIR)
 
 .PHONY: init clean install uninstall
