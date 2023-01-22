@@ -3,41 +3,79 @@
 # See https://github.com/theobori/wall.sh/blob/main/wall.sh
 # A supposed better version
 
+source "./curses.sh"
+source "./utils.sh"
+
 # Script version
 VERSION=0.0.1
 
 FILENAME=$(basename $0)
-COLORS=$(tput colors)
 
-function print_help () {
-    cat << HELP
+# Terminal global infos
+COLORS=$(tput colors)
+MAX_W=$(tput cols)
+MAX_H=$(tput lines)
+MAX_BLOCKS=$(($MAX_H * $MAX_W))
+
+BLOCK="\xe2\x96\x88"
+
+# Default vars
+COLOR=255
+BLOCK_SIZE=1
+INTERVAL=0.01
+RAINBOW=0
+
+function print_help() {
+    cat <<EOF
 Optional arguments
-  -h        Show this help message and exi
+  -h        Show this help message
   -c        Choose a color between 0 and $COLORS
   -v        Print the script version
-HELP
+  -s        Block size between 2 and your terminal max width ($MAX_W)
+  -t        Interval before printing a block
+  -r        Every block has a random color
+EOF
 }
 
-function parse () {
-    while getopts "c:hv" arg; do
+function parse() {
+    while getopts "c:b:t:hvr" arg; do
         case $arg in
             c)
                 if [[ $OPTARG -lt 0 || $OPTARG -gt $COLORS ]]; then
-                    echo "0 <= c <= 256"
+                    echo "Invalid color (0 <= c <= 256)"
                     return 1
                 fi
+
+                COLOR=$OPTARG
+                ;;
+
+            b)
+                if [[ $OPTARG -lt 1 || $OPTARG -gt $MAX_W ]]; then
+                    echo "Invalid block size (1 <= b <= $MAX_W)"
+                    return 1
+                fi
+    
+                BLOCK_SIZE=$OPTARG
+                ;;
+
+            t)
+                INTERVAL=$OPTARG
+                ;;
+
+            r)
+                RAINBOW=1
                 ;;
 
             h)
                 print_help
-                return 0
+                exit 0
                 ;;
             
             v)
                 echo $FILENAME -- $VERSION
-                return 0
+                exit 0
                 ;;
-
+            
             *)
                 return 0
             ;;
@@ -45,9 +83,47 @@ function parse () {
     done
 }
 
-function main () {
+function build_wall() {
+    local x=$1
+    local y=$2
+    local max=$(expr $MAX_BLOCKS / $BLOCK_SIZE)
+
+    for (( i = 0; i < $max ; i++ )); do
+        if [[ $(expr $x + $BLOCK_SIZE) -gt $MAX_W ]]; then
+            x=0
+            y=$(expr $y + 1)
+            echo
+        fi
+
+        if [[ $RAINBOW -eq 1 ]]; then
+            COLOR=$((RANDOM % $COLORS))
+        fi
+
+        printf "$(tput cup ${y} ${x})\e[38;5;${COLOR}m${BLOCK}"
+        sleep $INTERVAL
+
+        x=$(expr $x + $BLOCK_SIZE)
+    done
+}
+
+function main() {
     parse $@ || exit 1
 
+    BLOCK=$(repeat $BLOCK $BLOCK_SIZE)
+    BLOCK_ERASER=$(repeat "\x20" $BLOCK_SIZE)
+    local tmp=$BLOCK
+
+    curses_init
+    
+    while :; do
+        build_wall 0 $MAX_H
+
+        BLOCK=$BLOCK_ERASER
+        build_wall 0 0
+        BLOCK=$tmp
+    done
+    
+    curses_reset
 }
 
 main $@

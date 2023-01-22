@@ -1,23 +1,42 @@
-# Paths
-INSTALL_DIR=/usr/local/bin/
-SRC = ./wall.sh
+PREFIX_DIR=/usr/local
+
+# Symbolic links path
+INSTALL_DIR = $(PREFIX_DIR)/bin
+
+# Scripts path
+OPT_DIR = $(PREFIX_DIR)/opt/shell-collection
+
+# Executable scripts
+SRC = $(wildcard *.sh)
 
 # Format the shell scripts to get a set with the full path
-BINS=$(addprefix $(INSTALL_DIR),$(SRC))
+LINKS = $(addprefix $(INSTALL_DIR)/,$(SRC))
+SCRIPTS = $(addprefix $(OPT_DIR)/,$(SRC))
 
-makedir:
+init:
 	test -d $(INSTALL_DIR) || mkdir -p $(INSTALL_DIR)
-.PHONY: makedir
+	test -d $(OPT_DIR) || mkdir -p $(OPT_DIR)
 
-install-all: makedir \
-	install-wall.sh
-.PHONY: install-all
+	cp -r $(SRC) $(OPT_DIR)
 
-install-wall.sh: makedir
-	install -m 0755 ./wall.sh $(INSTALL_DIR)
-.PHONY: install-wall.sh
+####################
+# Install scripts
+####################
 
+func_link = test -h $(INSTALL_DIR)/$(1) || \
+	ln -s $(OPT_DIR)/$(1) $(INSTALL_DIR)/$(1)
 
-uninstall-all:
-	@echo $(BINS)
-.PHONY: uninstall-all
+install: init
+	$(call func_link,wall.sh)
+
+####################
+# Uninstall scripts
+####################
+
+clean:
+	$(RM) $(LINKS)
+
+uninstall: clean
+	$(RM) $(SCRIPTS)
+
+.PHONY: init clean install uninstall
