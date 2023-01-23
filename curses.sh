@@ -3,7 +3,7 @@
 # Minimal "curses" features
 
 # Initialize the terminal
-curses_init() {
+function curses_init() {
     stty -echo
     tput smcup
     tput civis
@@ -12,7 +12,7 @@ curses_init() {
 }
 
 # Reset the terminal attributes with the default ones
-curses_reset() {
+function curses_reset() {
     tput reset
     tput rmcup
     tput cnorm
@@ -21,7 +21,7 @@ curses_reset() {
 }
 
 # End the curses session
-curses_end() {
+function curses_end() {
     curses_reset
     exit 0
 }

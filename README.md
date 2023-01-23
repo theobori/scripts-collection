@@ -3,21 +3,33 @@
 Just random shell scripts, useful or not 
 
 ## How to build and run ?
+1. Install the dependencies
+    - `bash` (or at least a shell supporting bash scripts)
+    - Basic Linux binaries:
+        - `tput`
+        - `nc`
+        - `curl`
+        - `wget`
 
-```bash
-sudo make install
-```
+2. Optional: You can install the scripts
+
+    > ```bash
+    > sudo make install
+    > ```
+    See the installable scripts list below.
+
 
 ## How to uninstall ?
 ```bash
 sudo make uninstall
 ```
 
-## Todo
+## State
 
-Name           | Status
--------------  | :-------------:
-wall.sh | ✅
-install_discord.sh | ✅
-install_tor.sh | ✅
-snake.sh | ⚠️
+Name           | Status          | Install
+:-------------  | :-------------: | :-------------:
+wall.sh | ✅ | ✅
+install_discord.sh | ✅ | ❌
+install_tor.sh | ✅ | ❌
+snake.sh | ⚠️ | ✅
+anonfile CLI | ⚠️ | ✅

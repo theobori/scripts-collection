@@ -27,6 +27,9 @@ RAINBOW=0
 
 function print_help() {
     cat <<EOF
+$FILENAME
+Version $VERSION
+
 Optional arguments
   -h        Show this help message
   -c        Choose a color between 0 and $COLORS
