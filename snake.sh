@@ -26,6 +26,7 @@ FOOD=("-1" "-1") # x y
 DIRECTION=(1 0) # x y
 X=(0)
 Y=(0)
+TRACE=(0)
 
 function print_help() {
     cat <<EOF
@@ -57,13 +58,13 @@ function parse() {
                 ;;
             
             s)
-                if [[ $OPTARG -lt 0 || $OPTARG -gt $max_size ]]; then
-                    echo "Invalid size (0 <= s <= $max_size"
+                if [[ $OPTARG -le 0 || $OPTARG -gt $max_size ]]; then
+                    echo "Invalid size (0 <= s <= $max_size)"
                     return 1
                 fi
 
-                X=($(seq 0 $OPTARG))
-                for (( i = 0; i < $OPTARG; i++)); do
+                X=($(seq 1 $OPTARG))
+                for (( i = 1; i < $OPTARG; i++ )); do
                     Y+=(0);
                 done
                 ;;
