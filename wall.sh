@@ -3,8 +3,10 @@
 # See https://github.com/theobori/wall.sh/blob/main/wall.sh
 # A supposed better version
 
-source "./curses.sh"
-source "./utils.sh"
+RESOLVED_DIR=$(dirname $(realpath $0))
+
+source "$RESOLVED_DIR/curses.sh"
+source "$RESOLVED_DIR/utils.sh"
 
 # Script version
 VERSION=0.0.1

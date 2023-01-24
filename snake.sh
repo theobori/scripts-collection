@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-source "./curses.sh"
+RESOLVED_DIR=$(dirname $(realpath $0))
+
+source "$RESOLVED_DIR/curses.sh"
 
 # Script version
 VERSION=0.0.1

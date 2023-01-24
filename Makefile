@@ -28,6 +28,8 @@ func_link = test -h $(INSTALL_DIR)/$(1) || \
 
 install: init
 	$(call func_link,wall.sh)
+	$(call func_link,snake.sh)
+	$(call func_link,anonfile.sh)
 
 ####################
 # Uninstall scripts
@@ -38,6 +40,6 @@ clean:
 
 uninstall: clean
 	$(RM) $(SCRIPTS)
-	$(RM) $(OPT_DIR)
+	$(RM) -r $(OPT_DIR)
 
 .PHONY: init clean install uninstall
