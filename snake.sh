@@ -17,12 +17,13 @@ COLOR=255
 INTERVAL=0.07
 RAINBOW=0
 BLOCK="\xe2\x96\x88"
+ERASER="\x20"
 
 # Snake vars
-DIRECTION="R"
-FOOD=("-1" "-1")
-X=()
-Y=()
+FOOD=("-1" "-1") # x y
+DIRECTION=(1 0) # x y
+X=(0)
+Y=(0)
 
 function print_help() {
     cat <<EOF
@@ -35,11 +36,14 @@ Optional arguments
   -v        Print the script version
   -t        Timing the snake
   -r        Every block has a random color
+  -s        Snake base size
 EOF
 }
 
 function parse() {
-    while getopts "c:t:hvr" arg; do
+    local max_size=$(expr $MAX_W / 2)
+
+    while getopts "c:s:t:hvr" arg; do
         case $arg in
             c)
                 if [[ $OPTARG -lt 0 || $OPTARG -gt $COLORS ]]; then
@@ -48,6 +52,18 @@ function parse() {
                 fi
 
                 COLOR=$OPTARG
+                ;;
+            
+            s)
+                if [[ $OPTARG -lt 0 || $OPTARG -gt $max_size ]]; then
+                    echo "Invalid size (0 <= s <= $max_size"
+                    return 1
+                fi
+
+                X=($(seq 1 $max_size))
+                for (( i = 0; i < $max_size; i++)); do
+                    Y+=(0);
+                done
                 ;;
 
             t)
@@ -112,19 +128,73 @@ function random_food() {
     FOOD=($x $y)
 }
 
+function snake_init() {
+    trap "DIRECTION=(0 -1)" SIGALRM 
+    trap "DIRECTION=(-1 0)" SIGUSR1
+    trap "DIRECTION=(0 1)" SIGUSR2
+    trap "DIRECTION=(1 0)" SIGBUS
+}
+
+function print_head() {
+    if [[ $RAINBOW -eq 1 ]]; then
+        COLOR=$((RANDOM % $COLORS))
+    fi
+
+    printf "$(tput cup ${Y[-1]} ${X[-1]})\e[38;5;${COLOR}m${BLOCK}"
+}
+
+function clear_screen() {
+    # Erase the tail
+    printf "$(tput cup ${Y[0]} ${X[0]})${ERASER}"
+}
+
+function update() {
+    # Check if the food is eaten
+    if [[ 
+        ${X[-1]} -eq ${FOOD[0]} && \
+        ${Y[-1]} -eq ${FOOD[1]} 
+    ]]; then
+        X=(0 ${X[@]})
+        Y=(0 ${Y[@]})
+        FOOD=("-1" "-1")
+    fi
+
+    # Generate a new food
+    if [[
+        ${FOOD[1]} -eq "-1" && \
+        ${FOOD[0]} -eq "-1"
+    ]]; then
+            random_food
+    fi
+
+    # Append a $BLOCK to the head
+    X+=($(expr ${X[-1]} + ${DIRECTION[0]}))
+    Y+=($(expr ${Y[-1]} + ${DIRECTION[1]}))
+
+    # Pop the tail
+    X=("${X[@]:1}")
+    Y=("${Y[@]:1}")
+
+    # Check out of bounds
+    [[ ${X[-1]} -lt 0 ]] && X[-1]=$(expr $MAX_W - 1)
+    [[ ${X[-1]} -gt $(expr $MAX_W - 1) ]] && X[-1]=0
+    [[ ${Y[-1]} -lt 0 ]] && Y[-1]=$(expr $MAX_H - 1)
+    [[ ${Y[-1]} -gt $(expr $MAX_H - 1) ]] && Y[-1]=0
+}
+
+function print_screen() {
+    print_head
+    printf "$(tput cup ${FOOD[1]} ${FOOD[0]})\e[38;5;255m${BLOCK}"
+}
+
 # Sub process
 function snake() {
-    trap "DIRECTION=U" SIGALRM 
-    trap "DIRECTION=L" SIGUSR1
-    trap "DIRECTION=D" SIGUSR2
-    trap "DIRECTION=R" SIGBUS
+    snake_init
 
     while :; do
-        if [[ ${FOOD[1]} -eq "-1" && ${FOOD[0]} -eq "-1" ]]; then
-            random_food
-        fi
-
-        printf "$(tput cup ${FOOD[1]} ${FOOD[0]})\e[38;5;${COLOR}m${BLOCK}"
+        clear_screen
+        update
+        print_screen
 
         sleep $INTERVAL
     done
