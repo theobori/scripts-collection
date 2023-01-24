@@ -60,8 +60,8 @@ function parse() {
                     return 1
                 fi
 
-                X=($(seq 1 $max_size))
-                for (( i = 0; i < $max_size; i++)); do
+                X=($(seq 0 $OPTARG))
+                for (( i = 0; i < $OPTARG; i++)); do
                     Y+=(0);
                 done
                 ;;
