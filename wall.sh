@@ -36,7 +36,7 @@ Optional arguments
   -h        Show this help message
   -c        Choose a color between 0 and $COLORS
   -v        Print the script version
-  -s        Block size between 2 and your terminal max width ($MAX_W)
+  -b        Block size between 2 and your terminal max width ($MAX_W)
   -t        Interval before printing a block
   -r        Every block has a random color
 EOF
