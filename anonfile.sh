@@ -28,10 +28,12 @@ function parse() {
         case $arg in
             u)
                 upload_file $OPTARG
+                return 0
                 ;;
 
             d)
                 download_file $OPTARG
+                return 0
                 ;;
 
             O)
