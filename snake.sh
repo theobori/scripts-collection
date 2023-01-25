@@ -26,7 +26,7 @@ FOOD=("-1" "-1") # x y
 DIRECTION=(1 0) # x y
 X=(0)
 Y=(0)
-TRACE=(0)
+DEATH=0
 
 function print_help() {
     cat <<EOF
@@ -131,13 +131,6 @@ function random_food() {
     FOOD=($x $y)
 }
 
-function snake_init() {
-    trap "DIRECTION=(0 -1)" SIGALRM 
-    trap "DIRECTION=(-1 0)" SIGUSR1
-    trap "DIRECTION=(0 1)" SIGUSR2
-    trap "DIRECTION=(1 0)" SIGBUS
-}
-
 function print_head() {
     if [[ $RAINBOW -eq 1 ]]; then
         COLOR=$((RANDOM % $COLORS))
@@ -152,6 +145,10 @@ function clear_screen() {
 }
 
 function update() {
+    # Check death
+    check_death $$ &
+    [[ $DEATH -eq 1 ]] && curses_end
+
     # Check if the food is eaten
     if [[ 
         ${X[-1]} -eq ${FOOD[0]} && \
@@ -190,6 +187,14 @@ function print_screen() {
     printf "$(tput cup ${FOOD[1]} ${FOOD[0]})\e[38;5;255m${BLOCK}"
 }
 
+function snake_init() {
+    trap "DIRECTION=(0 -1)" SIGALRM 
+    trap "DIRECTION=(-1 0)" SIGUSR1
+    trap "DIRECTION=(0 1)" SIGUSR2
+    trap "DIRECTION=(1 0)" SIGBUS
+    trap "DEATH=1" SIGXFSZ
+}
+
 # Sub process
 function snake() {
     snake_init
@@ -217,7 +222,19 @@ function curses_init() {
     tput civis
     tput clear
 
-    trap cleanup HUP TERM WINCH EXIT SIGINT SIGTERM
+    trap cleanup HUP TERM WINCH EXIT SIGINT SIGTERM SIGXFSZ
+}
+
+# It is supposed to be a subprocess too
+function check_death() {
+    for (( i = 0; i < $(expr ${#X[@]} - 1) ; i++ )); do
+        if [[
+            ${X[-1]} -eq ${X[$i]} && \
+            ${Y[-1]} -eq ${Y[$i]}
+        ]]; then
+            kill -SIGXFSZ $1
+        fi
+    done
 }
 
 function main() {
