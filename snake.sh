@@ -26,7 +26,6 @@ FOOD=("-1" "-1") # x y
 DIRECTION=(1 0) # x y
 X=(0)
 Y=(0)
-DEATH=0
 
 function print_help() {
     cat <<EOF
@@ -147,7 +146,6 @@ function clear_screen() {
 function update() {
     # Check death
     check_death $$ &
-    [[ $DEATH -eq 1 ]] && curses_end
 
     # Check if the food is eaten
     if [[ 
@@ -192,7 +190,7 @@ function snake_init() {
     trap "DIRECTION=(-1 0)" SIGUSR1
     trap "DIRECTION=(0 1)" SIGUSR2
     trap "DIRECTION=(1 0)" SIGBUS
-    trap "DEATH=1" SIGXFSZ
+    trap "curses_end" SIGXFSZ
 }
 
 # Sub process
