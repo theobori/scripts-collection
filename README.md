@@ -5,7 +5,7 @@ Just random shell scripts, useful or not
 ## How to build and run ?
 1. Install the dependencies
     - `bash>=4.0` (or at least a shell supporting bash)
-    - Basic Linux binaries:
+    - Basic Linux binaries
 
 2. Optional: You can install the scripts
 
