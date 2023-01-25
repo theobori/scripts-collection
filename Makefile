@@ -42,4 +42,7 @@ uninstall: clean
 	$(RM) $(SCRIPTS)
 	$(RM) -r $(OPT_DIR)
 
-.PHONY: init clean install uninstall
+
+re: uninstall install
+
+.PHONY: init clean install uninstall re
