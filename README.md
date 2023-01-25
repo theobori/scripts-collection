@@ -20,6 +20,19 @@ Just random shell scripts, useful or not
 sudo make uninstall
 ```
 
+## Docker playground
+
+#### Build
+
+```bash
+docker build -t scripts-playground .
+```
+#### Run
+
+```bash
+docker run -it scripts-playground
+```
+
 ## State
 
 Name           | Status          | Install
