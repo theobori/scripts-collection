@@ -4,11 +4,8 @@ Just random shell scripts, useful or not
 
 ## How to build and run ?
 1. Install the dependencies
-    - `bash` (or at least a shell supporting `bash>=4.0` scripts)
+    - `bash>=4.0` (or at least a shell supporting bash)
     - Basic Linux binaries:
-        - `tput`
-        - `curl`
-        - `wget`
 
 2. Optional: You can install the scripts
 
@@ -31,4 +28,4 @@ wall.sh | ✅ | ✅
 install_discord.sh | ✅ | ❌
 install_tor.sh | ✅ | ❌
 snake.sh | ✅ | ✅
-anonfile CLI | ⚠️ | ✅
+anonfile.sh | ✅ | ✅
