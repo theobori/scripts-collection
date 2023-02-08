@@ -38,3 +38,4 @@ install_tor.sh | ✅ | ❌
 snake.sh | ✅ | ✅
 anonfile.sh | ✅ | ✅
 update_sc.sh | ✅ | ✅
+fullrm_nix.sh | ✅ | ❌
