@@ -9,17 +9,12 @@ PROJECT_NAME="scripts-collection"
 GIT_FOLDER=$(locate -r "\.git\$" | grep "$PROJECT_NAME/.git")
 CLONE_PATH="$HOME/scripts-collection"
 
-function update() {
-    git pull
-    sudo make install
-}
-
-if [[ -z "$GIT_FOLDER" ]]; then
-    cd $GIT_FOLDER
-    git pull
-else
+if [[ -z $GIT_FOLDER ]]; then
     git clone git@github.com:theobori/scripts-collection.git $CLONE_PATH
     cd $CLONE_PATH
+else
+    cd ${GIT_FOLDER%.git}
+    git pull
 fi
 
 sudo make install
