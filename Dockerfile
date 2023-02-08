@@ -6,7 +6,8 @@ RUN apt-get install -y \
     curl \
     wget \
     jq \
-    make
+    make \
+    git
 
 COPY . /collection
 

@@ -13,6 +13,8 @@ SRC = $(wildcard *.sh)
 LINKS = $(addprefix $(INSTALL_DIR)/,$(SRC))
 SCRIPTS = $(addprefix $(OPT_DIR)/,$(SRC))
 
+all: help
+
 init:
 	test -d $(INSTALL_DIR) || mkdir -p $(INSTALL_DIR)
 	test -d $(OPT_DIR) || mkdir -p $(OPT_DIR)
@@ -30,6 +32,7 @@ install: init
 	$(call func_link,wall.sh)
 	$(call func_link,snake.sh)
 	$(call func_link,anonfile.sh)
+	$(call func_link,update_sc.sh)
 
 ####################
 # Uninstall scripts
@@ -45,4 +48,20 @@ uninstall: clean
 
 re: uninstall install
 
-.PHONY: init clean install uninstall re
+help:
+	@echo "scripts-collection"
+	@echo 
+	@echo "Install the scripts"
+	@echo 
+	@echo "  * Installable scripts are listed in the README file"
+	@echo "  * To install them, run the following command"
+	@echo 
+	@echo "    sudo make install"
+	@echo 
+	@echo "Test via Docker"
+	@echo 
+	@echo "     docker build -t scripts-playground ."
+	@echo "     docker run -it scripts-playground"
+	@echo 
+
+.PHONY: init clean install uninstall re help

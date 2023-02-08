@@ -7,12 +7,7 @@ Just random shell scripts, useful or not
     - `bash>=4.0` (or at least a shell supporting bash)
     - Basic Linux binaries
 
-2. Optional: You can install the scripts
-
-    > ```bash
-    > sudo make install
-    > ```
-    See the installable scripts list below.
+2. Run `make` to get informations
 
 
 ## How to uninstall ?
@@ -42,3 +37,4 @@ install_discord.sh | ✅ | ❌
 install_tor.sh | ✅ | ❌
 snake.sh | ✅ | ✅
 anonfile.sh | ✅ | ✅
+update_sc.sh | ✅ | ✅
