@@ -9,6 +9,8 @@ curl -L "https://discord.com/api/download?platform=linux&format=tar.gz" | tar -x
 sed -i "s/Icon=discord/Icon=\/usr\/share\/discord\/discord.png/g" Discord/discord.desktop
 sudo mv Discord/discord.desktop /usr/share/applications 
 
+# Avoid naming errors
+sudo rm -rf /usr/share/discord
 sudo mv Discord /usr/share/discord
 sudo ln -sf /usr/share/discord/Discord /usr/bin
 
