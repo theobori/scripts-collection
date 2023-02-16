@@ -42,3 +42,4 @@ Name           | Status          | Install
 **`fullrm_nix.sh`** | ✅ | ❌
 **`docker_ps_len.sh`** | ✅ | ✅
 **`pomodoro.sh`** | ✅ | ✅
+**`timer.sh`** | ✅ | ✅

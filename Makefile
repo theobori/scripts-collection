@@ -38,6 +38,7 @@ install: init
 	$(call func_link,is_live.sh)
 	$(call func_link,docker_ps_len.sh)
 	$(call func_link,pomodoro.sh)
+	$(call func_link,timer.sh)
 
 ####################
 # Uninstall scripts
