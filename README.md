@@ -6,6 +6,7 @@ Just random shell scripts, useful or not
 1. Install the dependencies
     - `bash>=4.0` (or at least a shell supporting bash)
     - Basic Linux binaries
+    - `figlet`
 
 2. Run `make` to get informations
 
@@ -40,3 +41,4 @@ Name           | Status          | Install
 **`update_sc.sh`** | ✅ | ✅
 **`fullrm_nix.sh`** | ✅ | ❌
 **`docker_ps_len.sh`** | ✅ | ✅
+**`pomodoro.sh`** | ✅ | ✅

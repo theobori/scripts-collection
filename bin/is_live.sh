@@ -24,6 +24,7 @@ Optional arguments
   -h        Show this help message
   -c        Twitch channel name
   -d        Display name
+  -v        Print the script version
 EOF
 }
 
