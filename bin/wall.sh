@@ -5,8 +5,8 @@
 
 RESOLVED_DIR=$(dirname $(realpath $0))
 
-source "$RESOLVED_DIR/curses.sh"
-source "$RESOLVED_DIR/utils.sh"
+source "$RESOLVED_DIR/../lib/curses.sh"
+source "$RESOLVED_DIR/../lib/utils.sh"
 
 # Script version
 VERSION=0.0.1
