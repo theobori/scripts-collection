@@ -32,10 +32,11 @@ docker run -it scripts-playground
 
 Name           | Status          | Install
 :-------------  | :-------------: | :-------------:
-wall.sh | ✅ | ✅
-install_discord.sh | ✅ | ❌
-install_tor.sh | ✅ | ❌
-snake.sh | ✅ | ✅
-anonfile.sh | ✅ | ✅
-update_sc.sh | ✅ | ✅
-fullrm_nix.sh | ✅ | ❌
+**`wall.sh`** | ✅ | ✅
+**`install_discord.sh`** | ✅ | ❌
+**`install_tor.sh`** | ✅ | ❌
+**`snake.sh`** | ✅ | ✅
+**`anonfile.sh`** | ✅ | ✅
+**`update_sc.sh`** | ✅ | ✅
+**`fullrm_nix.sh`** | ✅ | ❌
+**`docker_ps_len.sh`** | ✅ | ✅
