@@ -12,7 +12,7 @@ FILENAME=$(basename $0)
 # Default vars
 HOUR="00"
 MINUTE="00"
-SECOND="10"
+SECOND="00"
 
 function print_help() {
     cat <<EOF
@@ -21,7 +21,9 @@ Version $VERSION
 
 Optional arguments
   -h        Show this help message
-  -d        Duration (in minutes)
+  -H        Hours
+  -M        Minutes
+  -S        Seconds
   -v        Print the script version
 EOF
 }
@@ -73,6 +75,13 @@ function parse() {
 function _timer() {
     local notification_id=$(notify-send "⏳ Clock starting" -p)
     local timer_format="$HOUR:$MINUTE:$SECOND"
+
+    # Default timer is 10 seconds
+    if [[ $timer_format == "00:00:00" ]]; then
+        SECOND=10
+        timer_format="$HOUR:$MINUTE:$SECOND"
+    fi
+
     local seconds=$(echo "$timer_format" | awk -F: '{ print ($1 * 3600) + ($2 * 60) + $3 }')
 
     timer \
@@ -88,6 +97,8 @@ function _timer() {
 
 function main() {
     parse $@ || exit 1
+
+
 
     _timer
 }
