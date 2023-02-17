@@ -36,7 +36,7 @@ install: init
 	$(call func_link,anonfile.sh)
 	$(call func_link,update_sc.sh)
 	$(call func_link,is_live.sh)
-	$(call func_link,docker_ps_len.sh)
+	$(call func_link,docker_infos.sh)
 	$(call func_link,pomodoro.sh)
 	$(call func_link,timer.sh)
 

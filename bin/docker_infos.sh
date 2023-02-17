@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+case $BLOCK_BUTTON in
+    3) notify-send "🐋 Docker module" "📦: running containers amount
+🖼️: images amount"
+esac
+
+CONTAINERS=$(docker ps -q | wc -l)
+IMAGES=$(docker images -q | wc -l)
+
+echo "📦$CONTAINERS 🖼️$IMAGES"
