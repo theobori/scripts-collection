@@ -39,6 +39,7 @@ install: init
 	$(call func_link,sc-docker_infos)
 	$(call func_link,sc-pomodoro)
 	$(call func_link,sc-timer)
+	$(call func_link,sc-colors)
 
 ####################
 # Uninstall scripts

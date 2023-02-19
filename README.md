@@ -35,3 +35,4 @@ Name           | Status          | Install
 **`sc-docker_ps_len`** | ✅ | ✅
 **`sc-pomodoro`** | ✅ | ✅
 **`sc-timer`** | ✅ | ✅
+**`sc-colors`** | ✅ | ✅
