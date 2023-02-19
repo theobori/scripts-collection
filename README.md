@@ -1,8 +1,6 @@
-# scripts-collection
+# 💻 scripts-collection
 
-Just random shell scripts, useful or not 
-
-## How to build and run ?
+## 📖 How to build and run ?
 1. Install the dependencies
     - `bash>=4.0` (or at least a shell supporting bash)
     - Basic Linux binaries
@@ -10,36 +8,30 @@ Just random shell scripts, useful or not
 
 2. Run `make` to get informations
 
+## 🐋 Docker playground
 
-## How to uninstall ?
-```bash
-sudo make uninstall
-```
-
-## Docker playground
-
-#### Build
+#### 🔨 Build
 
 ```bash
 docker build -t scripts-playground .
 ```
-#### Run
+#### 🎉 Run
 
 ```bash
 docker run -it scripts-playground
 ```
 
-## State
+## ℹ️ Scripts informations
 
 Name           | Status          | Install
 :-------------  | :-------------: | :-------------:
-**`wall.sh`** | ✅ | ✅
-**`install_discord.sh`** | ✅ | ❌
-**`install_tor.sh`** | ✅ | ❌
-**`snake.sh`** | ✅ | ✅
-**`anonfile.sh`** | ✅ | ✅
-**`update_sc.sh`** | ✅ | ✅
-**`fullrm_nix.sh`** | ✅ | ❌
-**`docker_ps_len.sh`** | ✅ | ✅
-**`pomodoro.sh`** | ✅ | ✅
-**`timer.sh`** | ✅ | ✅
+**`sc-wall`** | ✅ | ✅
+**`sc-install_discord`** | ✅ | ❌
+**`sc-install_tor`** | ✅ | ❌
+**`sc-snake`** | ✅ | ✅
+**`sc-anonfile`** | ✅ | ✅
+**`sc-update_sc`** | ✅ | ✅
+**`sc-fullrm_nix`** | ✅ | ❌
+**`sc-docker_ps_len`** | ✅ | ✅
+**`sc-pomodoro`** | ✅ | ✅
+**`sc-timer`** | ✅ | ✅

@@ -10,7 +10,7 @@ OPT_LIB = $(OPT_DIR)/lib
 
 # Format the shell scripts to get a set with the full path
 # $(LINKS) is only used to clean the symlinks
-BINS = $(wildcard bin/*.sh)
+BINS = $(wildcard bin/*)
 LINKS = $(addprefix $(PREFIX_DIR)/,$(BINS))
 
 all: help
@@ -31,14 +31,14 @@ func_link = test -h $(INSTALL_DIR)/$(1) || \
 	ln -s $(OPT_BIN)/$(1) $(INSTALL_DIR)/$(1)
 
 install: init
-	$(call func_link,wall.sh)
-	$(call func_link,snake.sh)
-	$(call func_link,anonfile.sh)
-	$(call func_link,update_sc.sh)
-	$(call func_link,is_live.sh)
-	$(call func_link,docker_infos.sh)
-	$(call func_link,pomodoro.sh)
-	$(call func_link,timer.sh)
+	$(call func_link,sc-wall)
+	$(call func_link,sc-snake)
+	$(call func_link,sc-anonfile)
+	$(call func_link,sc-update_sc)
+	$(call func_link,sc-is_live)
+	$(call func_link,sc-docker_infos)
+	$(call func_link,sc-pomodoro)
+	$(call func_link,sc-timer)
 
 ####################
 # Uninstall scripts
@@ -66,6 +66,11 @@ help:
 	@echo 
 	@echo "     docker build -t scripts-playground ."
 	@echo "     docker run -it scripts-playground"
+	@echo 
+	@echo "Uninstall the scripts"
+	@echo "  * To uninstall them, run the following command"
+	@echo 
+	@echo "    sudo make uninstall"
 	@echo 
 
 .PHONY: init clean install uninstall re help
