@@ -61,7 +61,7 @@ function parse() {
 # i3blocks button event support
 function handle_button() {
     case $BLOCK_BUTTON in
-        1) xdg-open "https://twitch.tv/$CHANNEL" > /dev/null;;
+        1) xdg-open "https://twitch.tv/$CHANNEL" > /dev/null &;;
         3) notify-send "👀 Streamer status module" "\- Left click to open the browser
 $OFFLINE_EMOJI: Streamer is offline
 $ONLINE_EMOJI: Streamer is online
