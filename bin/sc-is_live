@@ -11,9 +11,13 @@ OFFLINE_EMOJI="⚫"
 ONLINE_EMOJI="🔴"
 UNKNOWN_EMOJI="❓"
 
+CACHE_PREFIX="${HOME}/.cache/is_live"
+CACHE_FILE="${CACHE_PREFIX}/state.json"
+
 # Default variables
 CHANNEL=""
 DISPLAY_NAME=""
+NOTIFICATION="false"
 
 function print_help() {
     cat <<EOF
@@ -25,11 +29,12 @@ Optional arguments
   -c        Twitch channel name
   -d        Display name
   -v        Print the script version
+  -n        Enable notification when the streamer is live
 EOF
 }
 
 function parse() {
-    while getopts "c:d:hv" arg; do
+    while getopts "c:d:hvn" arg; do
         case $arg in
             c)
                 if [[ ${#OPTARG} -le 1 ]]; then
@@ -43,6 +48,15 @@ function parse() {
             
             d)
                 DISPLAY_NAME=$OPTARG
+                ;;
+
+            n)
+                NOTIFICATION="true"
+
+                if [[ ! -f $CACHE_FILE ]]; then
+                    mkdir -p $CACHE_PREFIX
+                    echo "{}" > $CACHE_FILE
+                fi
                 ;;
 
             h)
@@ -65,8 +79,62 @@ function handle_button() {
         3) notify-send "👀 Streamer status module" "\- Left click to open the browser
 $OFFLINE_EMOJI: Streamer is offline
 $ONLINE_EMOJI: Streamer is online
-$UNKNOWN_EMOJI: Unknown satus" ;;
+$UNKNOWN_EMOJI: Unknown satus
+
+✉️ Send a notification when the streamer is online" ;;
     esac
+}
+
+# $1 -> current streamer emoji aka status
+function _resolve_emoji() {
+    if [[ "$1" == "$ONLINE_EMOJI" ]]; then
+        echo "true"
+    else
+        echo "false"
+    fi
+}
+
+# $1 -> Twitch channel name
+# $2 -> $ONLINE_EMOJI | $OFFLINE_EMOJI | $UNKNOWN_EMOJI
+function cache_channel() {
+    local exist=$(cat "$CACHE_FILE" | \
+        jq "has(\"$1\")"
+    )
+    local state=$(_resolve_emoji "$2")
+    local udpated_obj=$(cat "$CACHE_FILE" | \
+        jq ".$1 = $state"
+    )
+
+    if [[ "$exist" == "false" ]]; then
+        echo "$udpated_obj" > $CACHE_FILE
+
+        [[ "$state" == "true" ]] && return 0
+    fi
+
+    local value=$(cat "$CACHE_FILE" \
+        | jq ".$1"
+    )
+
+    echo "$udpated_obj" > $CACHE_FILE
+    
+    if [[
+        "$value" == "false" && \
+        "$state" == "true"
+    ]]; then
+        return 0
+    fi
+
+    return 1
+}
+
+# $1 -> Twitch channel name
+# $2 -> $ONLINE_EMOJI | $OFFLINE_EMOJI | $UNKNOWN_EMOJI
+function send_notification() {
+    cache_channel $@ || return
+
+    notify-send \
+        -u critical \
+        "👀 $DISPLAY_NAME is streaming !"
 }
 
 function print_status() {
@@ -79,6 +147,10 @@ function print_status() {
         emoji=$ONLINE_EMOJI
     else
         emoji=$UNKNOWN_EMOJI
+    fi
+    
+    if [[ "$NOTIFICATION" == "true" ]]; then
+        send_notification $CHANNEL $emoji
     fi
 
     echo "$emoji $DISPLAY_NAME"
