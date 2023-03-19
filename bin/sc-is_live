@@ -11,7 +11,7 @@ OFFLINE_EMOJI="⚫"
 ONLINE_EMOJI="🔴"
 UNKNOWN_EMOJI="❓"
 
-CACHE_PREFIX="${HOME}/.cache/is_live"
+CACHE_PREFIX="$HOME/.cache/is_live"
 CACHE_FILE="${CACHE_PREFIX}/state.json"
 
 # Default variables
@@ -87,11 +87,11 @@ $UNKNOWN_EMOJI: Unknown satus
 
 # $1 -> current streamer emoji aka status
 function _resolve_emoji() {
-    if [[ "$1" == "$ONLINE_EMOJI" ]]; then
-        echo "true"
-    else
-        echo "false"
-    fi
+    case $1 in
+        $ONLINE_EMOJI) echo "true" ;;
+        $OFFLINE_EMOJI) echo "false" ;;   
+        *) echo "unknown" ;;
+    esac
 }
 
 # $1 -> Twitch channel name
@@ -104,6 +104,8 @@ function cache_channel() {
     local udpated_obj=$(cat "$CACHE_FILE" | \
         jq ".$1 = $state"
     )
+
+    [[ "$state" == "unknown" ]] && return 1
 
     if [[ "$exist" == "false" ]]; then
         echo "$udpated_obj" > $CACHE_FILE
