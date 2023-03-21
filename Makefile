@@ -40,6 +40,7 @@ install: init
 	$(call func_link,sc-pomodoro)
 	$(call func_link,sc-timer)
 	$(call func_link,sc-colors)
+	$(call func_link,sc-capital)
 
 ####################
 # Uninstall scripts

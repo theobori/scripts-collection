@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+RESOLVED_DIR=$(dirname $(realpath $0))
+
+CAPITALS=$(cat $RESOLVED_DIR/../lib/country-list.json)
+COUNTRIES=$(echo "$CAPITALS" | jq 'keys[]')
+COUNTRIES_TOTAL=$(echo "$COUNTRIES" | wc -l)
+
+function random_country() {
+    local index=$((RANDOM % $COUNTRIES_TOTAL + 1))
+
+    echo "$COUNTRIES" | \
+        head -n $index | \
+        tail -n 1
+}

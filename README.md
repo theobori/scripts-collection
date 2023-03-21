@@ -36,5 +36,6 @@ Name            | Status          | Install         | With permissions¹
 **`sc-pomodoro`** | ✅ | ✅ | ❌
 **`sc-timer`** | ✅ | ✅ | ❌
 **`sc-colors`** | ✅ | ✅ | ❌
+**`sc-capital`** | ✅ | ✅ | ❌
 
 ¹: *Most of the time when it required permission, it must be run as `root`*

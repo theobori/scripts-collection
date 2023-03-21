@@ -1,0 +1,112 @@
+#!/usr/bin/env bash
+
+RESOLVED_DIR=$(dirname $(realpath $0))
+
+source "$RESOLVED_DIR/../lib/sc-capitals"
+
+# Script version
+VERSION=0.0.1
+
+FILENAME=$(basename $0)
+
+# Constants
+EMOJI_WIN=✅
+EMOJI_LOOSE=❌
+
+# Variables
+# "guess" || "answer"
+JOB="guess"
+COUNTRY=$(random_country)
+CAPITAL=""
+
+function print_help() {
+    cat <<EOF
+$FILENAME
+Version $VERSION
+
+Optional arguments
+  -h        Show this help message
+  -n        Select a country to guess
+  -a        Give the answer instead of guess
+  -g        Guess the capital
+  -v        Print the script version
+EOF
+}
+
+function parse() {
+    while getopts "n:c:ahvg" arg; do
+        case $arg in
+            a)
+                JOB="answer"
+                ;;
+
+            g)
+                JOB="guess"
+                ;;
+
+            n)
+                COUNTRY="$OPTARG"
+                ;;
+
+            h)
+                print_help
+                exit 0
+                ;;
+
+            v)
+                echo $FILENAME -- $VERSION
+                exit 0
+                ;;
+        esac    
+    done
+
+    # Avoiding conflict with double quotes
+    COUNTRY=$(echo $COUNTRY | sed 's/\"//g')
+
+    local exist=$(echo "$CAPITALS" | \
+        jq "has(\"$COUNTRY\")"
+    )
+
+    if [[ "$exist" == "false" ]]; then
+        return 1
+    fi
+
+    CAPITAL=$(
+        echo "$CAPITALS" | \
+        jq ".\"$COUNTRY\"" | \
+        sed 's/\"//g'
+    )
+}
+
+function _guess() {
+    echo "❓ What is the capital of $COUNTRY"
+
+    read -p "✏️ " response
+    echo
+    
+    if [[ "$response" == "$CAPITAL" ]]; then
+        echo "$EMOJI_WIN Congratulation !"
+    else
+        echo "$EMOJI_LOOSE The $COUNTRY capital was $CAPITAL"
+    fi
+}
+
+function capital() {
+    case $JOB in
+        "guess")
+            _guess
+            ;;
+        
+        "answer")
+            echo "❔ The capital of $COUNTRY is $CAPITAL"
+            ;;
+    esac
+}
+
+function main() {
+    parse "$@" || exit 1
+
+    capital
+}
+
+main "$@"
