@@ -17,4 +17,4 @@ else
     git pull
 fi
 
-sudo make install
+make install

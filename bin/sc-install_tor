@@ -31,10 +31,10 @@ fi
 tar -xvf tor-browser-linux64-${VERSION}_ALL.tar.xz
 
 # Install
-sudo mv $DIRNAME $TARGET
+mv $DIRNAME $TARGET
 cd $TARGET
 ./start-tor-browser.desktop --register-app
 
-sudo ln -sf $TARGET/Browser/start-tor-browser /usr/bin/tor-browser
+ln -sf $TARGET/Browser/start-tor-browser /usr/bin/tor-browser
 
-sudo update-desktop-database ~/.local/share/applications/
+update-desktop-database ~/.local/share/applications/

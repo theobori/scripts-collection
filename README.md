@@ -23,16 +23,18 @@ docker run -it scripts-playground
 
 ## ℹ️ Scripts informations
 
-Name           | Status          | Install
-:-------------  | :-------------: | :-------------:
-**`sc-wall`** | ✅ | ✅
-**`sc-install_discord`** | ✅ | ❌
-**`sc-install_tor`** | ✅ | ❌
-**`sc-snake`** | ✅ | ✅
-**`sc-anonfile`** | ✅ | ✅
-**`sc-update_sc`** | ✅ | ✅
-**`sc-fullrm_nix`** | ✅ | ❌
-**`sc-docker_ps_len`** | ✅ | ✅
-**`sc-pomodoro`** | ✅ | ✅
-**`sc-timer`** | ✅ | ✅
-**`sc-colors`** | ✅ | ✅
+Name            | Status          | Install         | With permissions¹
+:-------------  | :-------------: | :-------------: | :-------------:
+**`sc-wall`** | ✅ | ✅ | ❌
+**`sc-install_discord`** | ✅ | ❌ | ✅
+**`sc-install_tor`** | ✅ | ❌ | ✅
+**`sc-snake`** | ✅ | ✅ | ❌
+**`sc-anonfile`** | ✅ | ✅ | ❌
+**`sc-update_sc`** | ✅ | ✅ | ✅
+**`sc-fullrm_nix`** | ✅ | ❌ | ✅
+**`sc-docker_ps_len`** | ✅ | ✅ | ❌
+**`sc-pomodoro`** | ✅ | ✅ | ❌
+**`sc-timer`** | ✅ | ✅ | ❌
+**`sc-colors`** | ✅ | ✅ | ❌
+
+¹: *Most of the time it must be run as `root`*
