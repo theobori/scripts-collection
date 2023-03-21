@@ -37,4 +37,4 @@ Name            | Status          | Install         | With permissions¹
 **`sc-timer`** | ✅ | ✅ | ❌
 **`sc-colors`** | ✅ | ✅ | ❌
 
-¹: *Most of the time it must be run as `root`*
+¹: *Most of the time when it required permission, it must be run as `root`*
