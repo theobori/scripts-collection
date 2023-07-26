@@ -4,12 +4,14 @@
 
 DIRNAME=tor-browser
 TARGET=/opt/$DIRNAME
+URL="https://www.torproject.org/dist/torbrowser/${VERSION}/tor-browser-linux64-${VERSION}_ALL.tar.xz"
 
 cd /tmp
 
 # Download
-wget "https://www.torproject.org/dist/torbrowser/${VERSION}/tor-browser-linux64-${VERSION}_ALL.tar.xz"
-wget https://www.torproject.org/dist/torbrowser/${VERSION}/tor-browser-linux64-${VERSION}_ALL.tar.xz.asc
+wget \
+    $URL \
+    $URL.asc
 
 # Verify PGP ssignature
 curl -s https://openpgpkey.torproject.org/.well-known/openpgpkey/torproject.org/hu/kounek7zrdx745qydx6p59t9mqjpuhdf | gpg --import -

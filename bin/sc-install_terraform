@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+
+# Get version
+[[ -z $VERSION ]] && VERSION=1.5.4
+
+# Get architecture
+[[ -z $ARCH ]] && ARCH=linux_amd64
+
+# Get unique filename using the PID
+CHECKSUM_FILE="terraform_${VERSION}_SHA256SUMS"
+CHECKSUM_URL="https://releases.hashicorp.com/terraform/${VERSION}/${CHECKSUM_FILE}"
+OUTPUT="terraform_${VERSION}_${ARCH}.zip"
+
+cd /tmp
+
+# Download checksum and checksum signature
+wget \
+    $CHECKSUM_URL \
+    $CHECKSUM_URL.sig
+
+# Import Hashicorp public key
+curl -s https://www.hashicorp.com/.well-known/pgp-key.txt | gpg --import -
+
+# Verify signature file integrity
+gpg --verify $CHECKSUM_FILE.sig $CHECKSUM_FILE
+
+if [[ $? -ne 0 ]]; then
+    echo "An error occured while verifying gpg signature"
+    exit 1
+fi
+
+wget \
+    -O $OUTPUT \
+    "https://releases.hashicorp.com/terraform/${VERSION}/${OUTPUT}"
+
+# Verify checksum
+sha256sum \
+    -c \
+    --ignore-missing \
+    $CHECKSUM_FILE
+
+if [[ $? -ne 0 ]]; then
+    echo "An error occured while verifying checksum"
+    exit 1
+fi
+
+# Uncompress
+unzip $OUTPUT
+mv terraform /usr/bin
+rm -f $OUTPUT

@@ -27,6 +27,7 @@ Name            | Status          | Install         | With permissions¹
 :-------------  | :-------------: | :-------------: | :-------------:
 **`sc-wall`** | ✅ | ✅ | ❌
 **`sc-install_discord`** | ✅ | ❌ | ✅
+**`sc-install_terraform`** | ✅ | ❌ | ✅
 **`sc-install_tor`** | ✅ | ❌ | ✅
 **`sc-snake`** | ✅ | ✅ | ❌
 **`sc-anonfile`** | ✅ | ✅ | ❌

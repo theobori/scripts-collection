@@ -11,8 +11,8 @@ systemctl daemon-reload
 # Remove every nix files
 rm -rf ~/.nix-*
 rm -rf /root/.nix-*
-rm /etc/bashrc /etc/zshrc
-rm /etc/profile.d/nix.sh
+rm -f /etc/bashrc /etc/zshrc
+rm -f /etc/profile.d/nix.sh
 rm -r /etc/**/*nix
 rm -rf /nix /etc/nix
 
