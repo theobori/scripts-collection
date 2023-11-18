@@ -1,23 +1,25 @@
 #!/usr/bin/env bash
 
+set -e
+
 # See https://github.com/theobori/wall.sh/blob/main/wall.sh
 # A supposed better version
 
-RESOLVED_DIR=$(dirname $(realpath $0))
+readonly RESOLVED_DIR=$(dirname $(realpath ${0}))
 
-source "$RESOLVED_DIR/../lib/sc-curses"
-source "$RESOLVED_DIR/../lib/sc-utils"
+source "${RESOLVED_DIR}/../lib/sc-curses"
+source "${RESOLVED_DIR}/../lib/sc-utils"
 
 # Script version
-VERSION=0.0.1
+readonly VERSION=0.0.1
 
-FILENAME=$(basename $0)
+readonly FILENAME=$(basename ${0})
 
 # Terminal global infos
-COLORS=$(tput colors)
-MAX_W=$(tput cols)
-MAX_H=$(tput lines)
-MAX_BLOCKS=$(($MAX_H * $MAX_W))
+readonly COLORS=$(tput colors)
+readonly MAX_W=$(tput cols)
+readonly MAX_H=$(tput lines)
+readonly MAX_BLOCKS=$((${MAX_H} * ${MAX_W}))
 
 BLOCK="\xe2\x96\x88"
 
@@ -29,14 +31,14 @@ RAINBOW=0
 
 function print_help() {
     cat <<EOF
-$FILENAME
-Version $VERSION
+${FILENAME}
+Version ${VERSION}
 
 Optional arguments
   -h        Show this help message
-  -c        Choose a color between 0 and $COLORS
+  -c        Choose a color between 0 and ${COLORS}
   -v        Print the script version
-  -b        Block size between 2 and your terminal max width ($MAX_W)
+  -b        Block size between 2 and your terminal max width (${MAX_W})
   -t        Interval before printing a block
   -r        Every block has a random color
 EOF
@@ -44,27 +46,27 @@ EOF
 
 function parse() {
     while getopts "c:b:t:hvr" arg; do
-        case $arg in
+        case ${arg} in
             c)
-                if [[ $OPTARG -lt 0 || $OPTARG -gt $COLORS ]]; then
+                if [[ ${OPTARG} -lt 0 || ${OPTARG} -gt ${COLORS} ]]; then
                     echo "Invalid color (0 <= c <= 256)"
                     return 1
                 fi
 
-                COLOR=$OPTARG
+                COLOR=${OPTARG}
                 ;;
 
             b)
-                if [[ $OPTARG -lt 1 || $OPTARG -gt $MAX_W ]]; then
-                    echo "Invalid block size (1 <= b <= $MAX_W)"
+                if [[ ${OPTARG} -lt 1 || ${OPTARG} -gt ${MAX_W} ]]; then
+                    echo "Invalid block size (1 <= b <= ${MAX_W})"
                     return 1
                 fi
     
-                BLOCK_SIZE=$OPTARG
+                BLOCK_SIZE=${OPTARG}
                 ;;
 
             t)
-                INTERVAL=$OPTARG
+                INTERVAL=${OPTARG}
                 ;;
 
             r)
@@ -77,7 +79,7 @@ function parse() {
                 ;;
             
             v)
-                echo $FILENAME -- $VERSION
+                echo ${FILENAME} -- ${VERSION}
                 exit 0
                 ;;
             
@@ -89,46 +91,46 @@ function parse() {
 }
 
 function build_wall() {
-    local x=$1
-    local y=$2
-    local max=$(expr $MAX_BLOCKS / $BLOCK_SIZE)
+    local x=${1}
+    local y=${2}
+    local max=$(expr ${MAX_BLOCKS} / ${BLOCK_SIZE})
 
-    for (( i = 0; i < $max ; i++ )); do
-        if [[ $(expr $x + $BLOCK_SIZE) -gt $MAX_W ]]; then
+    for (( i = 0; i < ${max} ; i++ )); do
+        if [[ $(expr ${x} + ${BLOCK_SIZE}) -gt ${MAX_W} ]]; then
             x=0
-            y=$(expr $y + 1)
+            y=$(expr ${y} + 1)
             echo
         fi
 
-        if [[ $RAINBOW -eq 1 ]]; then
-            COLOR=$((RANDOM % $COLORS))
+        if [[ ${RAINBOW} -eq 1 ]]; then
+            COLOR=$((RANDOM % ${COLORS}))
         fi
 
         printf "$(tput cup ${y} ${x})\e[38;5;${COLOR}m${BLOCK}"
-        sleep $INTERVAL
+        sleep ${INTERVAL}
 
-        x=$(expr $x + $BLOCK_SIZE)
+        x=$(expr ${x} + ${BLOCK_SIZE})
     done
 }
 
 function main() {
-    parse $@ || exit 1
+    parse ${@} || exit 1
 
-    BLOCK=$(repeat $BLOCK $BLOCK_SIZE)
-    BLOCK_ERASER=$(repeat "\x20" $BLOCK_SIZE)
-    local tmp=$BLOCK
+    BLOCK=$(repeat ${BLOCK} ${BLOCK_SIZE})
+    BLOCK_ERASER=$(repeat "\x20" ${BLOCK_SIZE})
+    local tmp=${BLOCK}
 
     curses_init
     
     while :; do
-        build_wall 0 $MAX_H
+        build_wall 0 ${MAX_H}
 
-        BLOCK=$BLOCK_ERASER
+        BLOCK=${BLOCK_ERASER}
         build_wall 0 0
-        BLOCK=$tmp
+        BLOCK=${tmp}
     done
     
     curses_reset
 }
 
-main $@
+main ${@}

@@ -1,17 +1,16 @@
 #!/usr/bin/env bash
 
 # Script version
-VERSION=0.0.1
+readonly VERSION=0.0.1
+readonly FILENAME=$(basename ${0})
 
-FILENAME=$(basename $0)
-
-read -d "" -r SPRITE <<EOF
+read -d "" -r SPRITE <<EOS
 ─▀▀▌───────▐▀▀─
 ─▄▀░◌░░░░░░░▀▄─
 ▐░░◌░▄▀██▄█░░░▌
 ▐░░░▀████▀▄░░░▌
 ═▀▄▄▄▄▄▄▄▄▄▄▄▀═
-EOF
+EOS
 
 # Default vars
 CURRENT_COLOR=0
@@ -19,9 +18,9 @@ WIDTH=4
 HEIGHT=2
 
 function print_help() {
-    cat <<EOF
-$FILENAME
-Version $VERSION
+    cat <<USAGE
+${FILENAME}
+Version ${VERSION}
 
 Optional arguments
   -h        Show this help message
@@ -30,28 +29,28 @@ Optional arguments
   -s        Sprite 
   -W        Width
   -H        Height
-EOF
+USAGE
 }
 
 function parse() {
     while getopts "W:H:s:hvr" arg; do
-        case $arg in
+        case ${arg} in
             W)
-                if [[ $OPTARG -lt 1 ]]; then
+                if [[ ${OPTARG} -lt 1 ]]; then
                     echo "Invalid width (w >= 1)"
                     return 1
                 fi
 
-                WIDTH=$OPTARG
+                WIDTH=${OPTARG}
                 ;;
             
             H)
-                if [[ $OPTARG -lt 1 ]]; then
+                if [[ ${OPTARG} -lt 1 ]]; then
                     echo "Invalid height (h >= 1)"
                     return 1
                 fi
 
-                HEIGHT=$OPTARG
+                HEIGHT=${OPTARG}
                 ;;
 
             r)
@@ -59,12 +58,12 @@ function parse() {
                 
                 while IFS= read -d '' -n 1 -t 2 c
                 do
-                    SPRITE+=$c
+                    SPRITE+=${c}
                 done
                 ;;
             
             s)
-                SPRITE=$OPTARG
+                SPRITE=${OPTARG}
                 ;;
 
             h)
@@ -73,7 +72,7 @@ function parse() {
                 ;;
             
             v)
-                echo $FILENAME -- $VERSION
+                echo ${FILENAME} -- ${VERSION}
                 exit 0
                 ;;
             
@@ -87,22 +86,22 @@ function parse() {
 # $1 string to draw
 # $2 how many
 function _print_line() {
-    local lines=$(echo "$1" | wc -l)
-    local cols=$(echo "$1" | head -n 1 | wc -m)
+    local lines=$(echo "${1}" | wc -l)
+    local cols=$(echo "${1}" | head -n 1 | wc -m)
     local line_y=1
 
-    for (( y = 1 ; y <= $lines ; y++)); do
-       local line=$(echo "$1" | head -n $line_y | tail -n 1)
+    for (( y = 1 ; y <= ${lines} ; y++)); do
+       local line=$(echo "${1}" | head -n ${line_y} | tail -n 1)
 
-        for (( n = 0 ; n < $2 ; n++)); do
-            local color=$(($CURRENT_COLOR + $n))
+        for (( n = 0 ; n < ${2} ; n++)); do
+            local color=$((${CURRENT_COLOR} + ${n}))
             
             printf "\e[38;5;${color}m${line}"
         done
 
         echo
 
-        line_y=$(($line_y + 1))
+        line_y=$((${line_y} + 1))
     done
 }
 
@@ -110,16 +109,16 @@ function _print_line() {
 # $2 h
 # $3 string to draw
 function _print() {
-    for (( i = 0 ; i < $2 ; i++)); do
-        _print_line "$3" $1
-        CURRENT_COLOR=$(($CURRENT_COLOR + $1))
+    for (( i = 0 ; i < ${2} ; i++)); do
+        _print_line "${3}" ${1}
+        CURRENT_COLOR=$((${CURRENT_COLOR} + ${1}))
     done
 }
 
 function main() {
-    parse $@ || exit 1
+    parse ${@} || exit 1
 
-    _print $WIDTH $HEIGHT "$SPRITE"
+    _print ${WIDTH} ${HEIGHT} "${SPRITE}"
 }
 
-main $@
+main ${@}

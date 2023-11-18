@@ -8,10 +8,26 @@ OPT_DIR = $(PREFIX_DIR)/opt/scripts-collection
 OPT_BIN = $(OPT_DIR)/bin
 OPT_LIB = $(OPT_DIR)/lib
 
+BINS = $(wildcard $(bin)/*)
+
+# Scripts that are going to be installed into $(INSTALL_DIR)
+INSTALL_SCRIPTS = sc-wall \
+	sc-snake \
+	sc-anonfile \
+	sc-update_sc \
+	sc-is_live \
+	sc-docker_infos \
+	sc-pomodoro \
+	sc-timer \
+	sc-colors \
+	sc-capital
+
 # Format the shell scripts to get a set with the full path
 # $(LINKS) is only used to clean the symlinks
-BINS = $(wildcard bin/*)
-LINKS = $(addprefix $(PREFIX_DIR)/,$(BINS))
+LINKS = $(addprefix $(INSTALL_DIR)/,$(INSTALL_SCRIPTS))
+
+# Not using Bash string substitution to make it shell independant
+INSTALL_SCRIPTS_DEST = $(foreach script, $(INSTALL_SCRIPTS), $(OPT_BIN)/$(script))
 
 all: help
 
@@ -20,31 +36,11 @@ init:
 	test -d $(OPT_BIN) || mkdir -p $(OPT_BIN)
 	test -d $(OPT_LIB) || mkdir -p $(OPT_LIB)
 
+install: init
 	cp -r ./bin $(OPT_DIR)
 	cp -r ./lib $(OPT_DIR)
 
-####################
-# Install scripts
-####################
-
-func_link = test -h $(INSTALL_DIR)/$(1) || \
-	ln -s $(OPT_BIN)/$(1) $(INSTALL_DIR)/$(1)
-
-install: init
-	$(call func_link,sc-wall)
-	$(call func_link,sc-snake)
-	$(call func_link,sc-anonfile)
-	$(call func_link,sc-update_sc)
-	$(call func_link,sc-is_live)
-	$(call func_link,sc-docker_infos)
-	$(call func_link,sc-pomodoro)
-	$(call func_link,sc-timer)
-	$(call func_link,sc-colors)
-	$(call func_link,sc-capital)
-
-####################
-# Uninstall scripts
-####################
+	ln -s $(INSTALL_SCRIPTS_DEST) $(INSTALL_DIR)
 
 clean:
 	$(RM) $(LINKS)
@@ -64,12 +60,8 @@ help:
 	@echo 
 	@echo "    sudo make install"
 	@echo 
-	@echo "Test via Docker"
-	@echo 
-	@echo "     docker build -t scripts-playground ."
-	@echo "     docker run -it scripts-playground"
-	@echo 
 	@echo "Uninstall the scripts"
+	@echo 
 	@echo "  * To uninstall them, run the following command"
 	@echo 
 	@echo "    sudo make uninstall"

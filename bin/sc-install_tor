@@ -1,17 +1,19 @@
 #!/usr/bin/env bash
 
-[[ -z $1 ]] && VERSION=12.0.2 || VERSION=$1
+set -e
 
-DIRNAME=tor-browser
-TARGET=/opt/$DIRNAME
-URL="https://www.torproject.org/dist/torbrowser/${VERSION}/tor-browser-linux64-${VERSION}_ALL.tar.xz"
+readonly VERSION=${1:-"12.0.2"}
+
+readonly DIRNAME=tor-browser
+readonly TARGET=/opt/${DIRNAME}
+readonly URL="https://www.torproject.org/dist/torbrowser/${VERSION}/tor-browser-linux64-${VERSION}_ALL.tar.xz"
 
 cd /tmp
 
 # Download
 wget \
-    $URL \
-    $URL.asc
+    ${URL} \
+    ${URL}.asc
 
 # Verify PGP ssignature
 curl -s https://openpgpkey.torproject.org/.well-known/openpgpkey/torproject.org/hu/kounek7zrdx745qydx6p59t9mqjpuhdf | gpg --import -
@@ -33,10 +35,10 @@ fi
 tar -xvf tor-browser-linux64-${VERSION}_ALL.tar.xz
 
 # Install
-mv $DIRNAME $TARGET
-cd $TARGET
+mv ${DIRNAME} ${TARGET}
+cd ${TARGET}
 ./start-tor-browser.desktop --register-app
 
-ln -sf $TARGET/Browser/start-tor-browser /usr/bin/tor-browser
+ln -sf ${TARGET}/Browser/start-tor-browser /usr/bin/tor-browser
 
 update-desktop-database ~/.local/share/applications/

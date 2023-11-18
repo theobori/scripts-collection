@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
 
-RESOLVED_DIR=$(dirname $(realpath $0))
+RESOLVED_DIR=$(dirname $(realpath ${0}))
 
-source "$RESOLVED_DIR/../lib/sc-curses"
+source "${RESOLVED_DIR}/../lib/sc-curses"
 
 # Script version
-VERSION=0.0.1
+readonly VERSION=0.0.1
 
-FILENAME=$(basename $0)
+readonly FILENAME=$(basename ${0})
 
 # Terminal global infos
-COLORS=$(tput colors)
-MAX_W=$(tput cols)
-MAX_H=$(tput lines)
+readonly COLORS=$(tput colors)
+readonly MAX_W=$(tput cols)
+readonly MAX_H=$(tput lines)
 
 # Default vars
 COLOR=255
@@ -28,48 +28,48 @@ X=(0)
 Y=(0)
 
 function print_help() {
-    cat <<EOF
-$FILENAME
-Version $VERSION
+    cat <<USAGE
+${FILENAME}
+Version ${VERSION}
 
 Optional arguments
   -h        Show this help message
-  -c        Choose a color between 0 and $COLORS
+  -c        Choose a color between 0 and ${COLORS}
   -v        Print the script version
   -t        Timing the snake
   -r        Every block has a random color
   -s        Snake base size
-EOF
+USAGE
 }
 
 function parse() {
-    local max_size=$(expr $MAX_W / 2)
+    local max_size=$(expr ${MAX_W} / 2)
 
     while getopts "c:s:t:hvr" arg; do
-        case $arg in
+        case ${arg} in
             c)
-                if [[ $OPTARG -lt 0 || $OPTARG -gt $COLORS ]]; then
+                if [[ ${OPTARG} -lt 0 || ${OPTARG} -gt ${COLORS} ]]; then
                     echo "Invalid color (0 <= c <= 256)"
                     return 1
                 fi
 
-                COLOR=$OPTARG
+                COLOR=${OPTARG}
                 ;;
             
             s)
-                if [[ $OPTARG -le 0 || $OPTARG -gt $max_size ]]; then
-                    echo "Invalid size (0 <= s <= $max_size)"
+                if [[ ${OPTARG} -le 0 || ${OPTARG} -gt ${max_size} ]]; then
+                    echo "Invalid size (0 <= s <= ${max_size})"
                     return 1
                 fi
 
-                X=($(seq 1 $OPTARG))
-                for (( i = 1; i < $OPTARG; i++ )); do
+                X=($(seq 1 ${OPTARG}))
+                for (( i = 1; i < ${OPTARG}; i++ )); do
                     Y+=(0);
                 done
                 ;;
 
             t)
-                INTERVAL=$OPTARG
+                INTERVAL=${OPTARG}
                 ;;
 
             r)
@@ -82,7 +82,7 @@ function parse() {
                 ;;
             
             v)
-                echo $FILENAME -- $VERSION
+                echo ${FILENAME} -- ${VERSION}
                 exit 0
                 ;;
             
@@ -94,45 +94,45 @@ function parse() {
 }
 
 # Read a key then send signal to the subprocess
-# Take only one argument, $1 -> PID
+# Take only one argument, ${1} -> PID
 function handle_key() {
     read -n1 pressed_key
 
-    case $pressed_key in
+    case ${pressed_key} in
         z | Z)
-            kill -SIGALRM $1
+            kill -SIGALRM ${1}
             ;;
 
         q | Q)
-            kill -SIGUSR1 $1
+            kill -SIGUSR1 ${1}
             ;;
 
         s | S)
-            kill -SIGUSR2 $1
+            kill -SIGUSR2 ${1}
             ;;
 
         d | D)
-            kill -SIGBUS $1
+            kill -SIGBUS ${1}
             ;;
     esac
 }
 
 function handle_keys() {
     while :; do
-        handle_key $1
+        handle_key ${1}
     done
 }
 
 function random_food() {
-    local x=$((RANDOM % $MAX_W))
-    local y=$((RANDOM % $MAX_H))
+    local x=$((RANDOM % ${MAX_W}))
+    local y=$((RANDOM % ${MAX_H}))
 
-    FOOD=($x $y)
+    FOOD=(${x} ${y})
 }
 
 function print_head() {
-    if [[ $RAINBOW -eq 1 ]]; then
-        COLOR=$((RANDOM % $COLORS))
+    if [[ ${RAINBOW} -eq 1 ]]; then
+        COLOR=$((RANDOM % ${COLORS}))
     fi
 
     printf "$(tput cup ${Y[-1]} ${X[-1]})\e[38;5;${COLOR}m${BLOCK}"
@@ -165,7 +165,7 @@ function update() {
             random_food
     fi
 
-    # Append a $BLOCK to the head
+    # Append a ${BLOCK} to the head
     X+=($(expr ${X[-1]} + ${DIRECTION[0]}))
     Y+=($(expr ${Y[-1]} + ${DIRECTION[1]}))
 
@@ -174,10 +174,10 @@ function update() {
     Y=("${Y[@]:1}")
 
     # Check out of bounds
-    [[ ${X[-1]} -lt 0 ]] && X[-1]=$(expr $MAX_W - 1)
-    [[ ${X[-1]} -gt $(expr $MAX_W - 1) ]] && X[-1]=0
-    [[ ${Y[-1]} -lt 0 ]] && Y[-1]=$(expr $MAX_H - 1)
-    [[ ${Y[-1]} -gt $(expr $MAX_H - 1) ]] && Y[-1]=0
+    [[ ${X[-1]} -lt 0 ]] && X[-1]=$(expr ${MAX_W} - 1)
+    [[ ${X[-1]} -gt $(expr ${MAX_W} - 1) ]] && X[-1]=0
+    [[ ${Y[-1]} -lt 0 ]] && Y[-1]=$(expr ${MAX_H} - 1)
+    [[ ${Y[-1]} -gt $(expr ${MAX_H} - 1) ]] && Y[-1]=0
 }
 
 function print_screen() {
@@ -202,7 +202,7 @@ function snake() {
         update
         print_screen
 
-        sleep $INTERVAL
+        sleep ${INTERVAL}
     done
 }
 
@@ -227,23 +227,23 @@ function curses_init() {
 function check_death() {
     for (( i = 0; i < $(expr ${#X[@]} - 1) ; i++ )); do
         if [[
-            ${X[-1]} -eq ${X[$i]} && \
-            ${Y[-1]} -eq ${Y[$i]}
+            ${X[-1]} -eq ${X[${i}]} && \
+            ${Y[-1]} -eq ${Y[${i}]}
         ]]; then
-            kill -SIGXFSZ $1
+            kill -SIGXFSZ ${1}
         fi
     done
 }
 
 function main() {
-    parse $@ || exit 1
+    parse ${@} || exit 1
 
     curses_init
     
     snake &
-    handle_keys $!
+    handle_keys ${!}
 
     curses_reset
 }
 
-main $@
+main ${@}

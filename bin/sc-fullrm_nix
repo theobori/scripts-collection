@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
-USER_BASE=nixbld
-GROUP=nixbld
+set -e
+
+readonly USER_BASE=nixbld
+readonly GROUP=nixbld
 
 # Disable the service
 systemctl disable nix-daemon.socket

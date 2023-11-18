@@ -8,19 +8,6 @@
 
 2. Run `make` to get informations
 
-## 🐋 Docker playground
-
-#### 🔨 Build
-
-```bash
-docker build -t scripts-playground .
-```
-#### 🎉 Run
-
-```bash
-docker run -it scripts-playground
-```
-
 ## ℹ️ Scripts informations
 
 Name            | Status          | Install         | With permissions¹

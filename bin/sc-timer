@@ -1,13 +1,15 @@
 #!/usr/bin/env bash
 
-RESOLVED_DIR=$(dirname $(realpath $0))
+set -e
 
-source "$RESOLVED_DIR/../lib/sc-utils"
+readonly RESOLVED_DIR=$(dirname $(realpath ${0}))
+
+source "${RESOLVED_DIR}/../lib/sc-utils"
 
 # Script version
-VERSION=0.0.1
+readonly VERSION=0.0.1
 
-FILENAME=$(basename $0)
+readonly FILENAME=$(basename ${0})
 
 # Default vars
 HOUR="00"
@@ -15,9 +17,9 @@ MINUTE="00"
 SECOND="00"
 
 function print_help() {
-    cat <<EOF
-$FILENAME
-Version $VERSION
+    cat <<USAGE
+${FILENAME}
+Version ${VERSION}
 
 Optional arguments
   -h        Show this help message
@@ -25,38 +27,38 @@ Optional arguments
   -M        Minutes
   -S        Seconds
   -v        Print the script version
-EOF
+USAGE
 }
 
 function parse() {
     # Do not change the opts order !
     while getopts "H:M:S:hv" arg; do
-        case $arg in
+        case ${arg} in
             H)
-                if [[ $OPTARG -lt 0 || $OPTARG -gt 24 ]]; then
+                if [[ ${OPTARG} -lt 0 || ${OPTARG} -gt 24 ]]; then
                     echo "Invalid hour (0 <= H <= 24)"
                     return 1
                 fi
 
-                HOUR=$OPTARG
+                HOUR=${OPTARG}
                 ;;
 
             M)
-                if [[ $OPTARG -lt 0 || $OPTARG -gt 24 ]]; then
+                if [[ ${OPTARG} -lt 0 || ${OPTARG} -gt 24 ]]; then
                     echo "Invalid minute (0 <= M <= 60)"
                     return 1
                 fi
 
-                MINUTE=$OPTARG
+                MINUTE=${OPTARG}
                 ;;
 
             S)
-                if [[ $OPTARG -lt 0 || $OPTARG -gt 24 ]]; then
+                if [[ ${OPTARG} -lt 0 || ${OPTARG} -gt 24 ]]; then
                     echo "Invalid minute (0 <= S <= 60)"
                     return 1
                 fi
 
-                SECOND=$OPTARG
+                SECOND=${OPTARG}
                 ;;
 
             h)
@@ -65,7 +67,7 @@ function parse() {
                 ;;
 
             v)
-                echo $FILENAME -- $VERSION
+                echo ${FILENAME} -- ${VERSION}
                 exit 0
                 ;;
         esac    
@@ -74,21 +76,21 @@ function parse() {
 
 function _timer() {
     local notification_id=$(notify-send "⏳ Clock starting" -p)
-    local timer_format="$HOUR:$MINUTE:$SECOND"
+    local timer_format="${HOUR}:${MINUTE}:${SECOND}"
 
     # Default timer is 10 seconds
-    if [[ $timer_format == "00:00:00" ]]; then
+    if [[ ${timer_format} == "00:00:00" ]]; then
         SECOND=10
-        timer_format="$HOUR:$MINUTE:$SECOND"
+        timer_format="${HOUR}:${MINUTE}:${SECOND}"
     fi
 
-    local seconds=$(echo "$timer_format" | awk -F: '{ print ($1 * 3600) + ($2 * 60) + $3 }')
+    local seconds=$(echo "${timer_format}" | awk -F: '{ print (${1} * 3600) + (${2} * 60) + ${3} }')
 
     timer \
-        $(($seconds * 1000)) \
-        $notification_id \
+        $((${seconds} * 1000)) \
+        ${notification_id} \
         "normal" \
-        "⏳ $timer_format"
+        "⏳ ${timer_format}"
     
     notify-send \
         -u "critical" \
@@ -96,11 +98,9 @@ function _timer() {
 }
 
 function main() {
-    parse $@ || exit 1
-
-
+    parse ${@} || exit 1
 
     _timer
 }
 
-main $@
+main ${@}
