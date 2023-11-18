@@ -62,7 +62,7 @@ function parse() {
 # ${1} -> JSON response
 function parse_JSON_response() {
     # JSON values
-    local status=$(echo ${1} | jq ".status")
+    local -r status=$(echo ${1} | jq ".status")
 
     # Check file status
     if [[ ${status} -ne "true" ]]; then

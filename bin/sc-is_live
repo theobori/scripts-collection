@@ -97,11 +97,11 @@ function _resolve_emoji() {
 # ${1} -> Twitch channel name
 # ${2} -> ${ONLINE_EMOJI} | ${OFFLINE_EMOJI} | ${UNKNOWN_EMOJI}
 function cache_channel() {
-    local exist=$(cat "${CACHE_FILE}" | \
+    local -r exist=$(cat "${CACHE_FILE}" | \
         jq "has(\"${1}\")"
     )
-    local state=$(_resolve_emoji "${2}")
-    local udpated_obj=$(cat "${CACHE_FILE}" | \
+    local -r state=$(_resolve_emoji "${2}")
+    local -r udpated_obj=$(cat "${CACHE_FILE}" | \
         jq ".${1} = ${state}"
     )
 
@@ -113,7 +113,7 @@ function cache_channel() {
         [[ "${state}" == "true" ]] && return 0
     fi
 
-    local value=$(cat "${CACHE_FILE}" \
+    local -r value=$(cat "${CACHE_FILE}" \
         | jq ".${1}"
     )
 
@@ -140,7 +140,7 @@ function send_notification() {
 }
 
 function print_status() {
-    local res=$(curl --silent ${API_URL}/${CHANNEL})
+    local -r res=$(curl --silent ${API_URL}/${CHANNEL})
     local emoji=""
 
     if [[ ${res} =~ "offline" ]]; then

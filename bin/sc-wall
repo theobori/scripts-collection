@@ -93,7 +93,7 @@ function parse() {
 function build_wall() {
     local x=${1}
     local y=${2}
-    local max=$(expr ${MAX_BLOCKS} / ${BLOCK_SIZE})
+    local -r max=$(expr ${MAX_BLOCKS} / ${BLOCK_SIZE})
 
     for (( i = 0; i < ${max} ; i++ )); do
         if [[ $(expr ${x} + ${BLOCK_SIZE}) -gt ${MAX_W} ]]; then
@@ -118,7 +118,7 @@ function main() {
 
     BLOCK=$(repeat ${BLOCK} ${BLOCK_SIZE})
     BLOCK_ERASER=$(repeat "\x20" ${BLOCK_SIZE})
-    local tmp=${BLOCK}
+    local -r tmp=${BLOCK}
 
     curses_init
     

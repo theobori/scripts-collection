@@ -7,7 +7,7 @@ case ${BLOCK_BUTTON} in
 🖼️: images amount"
 esac
 
-CONTAINERS=$(docker ps -q | wc -l)
-IMAGES=$(docker images -q | wc -l)
+readonly CONTAINERS=$(docker ps -q | wc -l)
+readonly IMAGES=$(docker images -q | wc -l)
 
 echo "📦${CONTAINERS} 🖼️${IMAGES}"

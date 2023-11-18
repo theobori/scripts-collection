@@ -75,7 +75,7 @@ function parse() {
 }
 
 function _timer() {
-    local notification_id=$(notify-send "⏳ Clock starting" -p)
+    local -r notification_id=$(notify-send "⏳ Clock starting" -p)
     local timer_format="${HOUR}:${MINUTE}:${SECOND}"
 
     # Default timer is 10 seconds
@@ -84,7 +84,7 @@ function _timer() {
         timer_format="${HOUR}:${MINUTE}:${SECOND}"
     fi
 
-    local seconds=$(echo "${timer_format}" | awk -F: '{ print (${1} * 3600) + (${2} * 60) + ${3} }')
+    local -r seconds=$(echo "${timer_format}" | awk -F: '{ print ($1 * 3600) + ($2 * 60) + $3 }')
 
     timer \
         $((${seconds} * 1000)) \

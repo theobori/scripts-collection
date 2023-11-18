@@ -43,7 +43,7 @@ USAGE
 }
 
 function parse() {
-    local max_size=$(expr ${MAX_W} / 2)
+    local -r max_size=$(expr ${MAX_W} / 2)
 
     while getopts "c:s:t:hvr" arg; do
         case ${arg} in
@@ -124,8 +124,8 @@ function handle_keys() {
 }
 
 function random_food() {
-    local x=$((RANDOM % ${MAX_W}))
-    local y=$((RANDOM % ${MAX_H}))
+    local -r x=$((RANDOM % ${MAX_W}))
+    local -r y=$((RANDOM % ${MAX_H}))
 
     FOOD=(${x} ${y})
 }

@@ -64,14 +64,14 @@ function parse() {
 
 # ${1} Notification ID
 function work() {
-    local summary="👍 Focus & work !"
+    local -r summary="👍 Focus & work !"
 
     timer ${WORK_DURATION} ${1} "normal" "${summary}"
 }
 
 # ${1} Notification ID
 function pause() {
-    local summary="⏱️ Take a pause !"
+    local -r summary="⏱️ Take a pause !"
     
     timer ${PAUSE_DURATION} ${1} "critical" "${summary}"
 }

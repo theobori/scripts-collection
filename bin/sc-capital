@@ -64,7 +64,7 @@ function parse() {
     # Avoiding conflict with double quotes
     COUNTRY=$(echo ${COUNTRY} | sed 's/\"//g')
 
-    local exist=$(echo "${CAPITALS}" | \
+    local -r exist=$(echo "${CAPITALS}" | \
         jq "has(\"${COUNTRY}\")"
     )
 

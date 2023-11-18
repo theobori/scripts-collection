@@ -86,8 +86,7 @@ function parse() {
 # $1 string to draw
 # $2 how many
 function _print_line() {
-    local lines=$(echo "${1}" | wc -l)
-    local cols=$(echo "${1}" | head -n 1 | wc -m)
+    local -r lines=$(echo "${1}" | wc -l)
     local line_y=1
 
     for (( y = 1 ; y <= ${lines} ; y++)); do
