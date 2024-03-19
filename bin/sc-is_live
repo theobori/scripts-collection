@@ -155,7 +155,7 @@ function print_status() {
         send_notification ${CHANNEL} ${emoji}
     fi
 
-    echo "${emoji} ${DISPLAY_NAME}"
+    echo "${emoji}${DISPLAY_NAME}"
 }
 
 function main() {
