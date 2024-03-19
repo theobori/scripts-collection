@@ -40,7 +40,7 @@ install: init
 	cp -r ./bin $(OPT_DIR)
 	cp -r ./lib $(OPT_DIR)
 
-	ln -s $(INSTALL_SCRIPTS_DEST) $(INSTALL_DIR)
+	ln -sf $(INSTALL_SCRIPTS_DEST) $(INSTALL_DIR)
 
 clean:
 	$(RM) $(LINKS)
