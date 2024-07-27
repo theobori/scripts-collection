@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+set -e
+
+readonly VERSION=0.2.0
+
+cat <<EOF
+Scripts collection -- version ${VERSION}
+EOF

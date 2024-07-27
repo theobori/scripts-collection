@@ -130,6 +130,9 @@ function _print() {
         _print_line "${3}" ${1}
         CURRENT_COLOR=$((${CURRENT_COLOR} + ${1}))
     done
+
+    # Reset terminal color
+    tput sgr0
 }
 
 function main() {

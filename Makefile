@@ -18,6 +18,7 @@ INSTALL_SCRIPTS = sc-wall \
 	sc-pomodoro \
 	sc-timer \
 	sc-colors \
+	sc-version \
 	sc-capital
 
 # Format the shell scripts to get a set with the full path
