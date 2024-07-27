@@ -19,6 +19,10 @@ For example you could install the scripts for the user only with the following c
 PREFIX_DIR=~/.local/ make install
 ```
 
+## 🤝 Contribute
+
+If you want to help the project, you can follow the guidelines in [CONTRIBUTING.md](./CONTRIBUTING.md).
+
 ## ℹ️ Scripts informations
 
 Here are informations about the scripts.
@@ -36,5 +40,6 @@ Name            | Installable         | With permissions¹
 `sc-timer` | ✅ | ❌
 `sc-colors` | ✅ | ❌
 `sc-capital` | ✅ | ❌
+`sc-version` | ✅ | ❌
 
 ¹: *Most of the time when it required permission, it must be run as `root`*
