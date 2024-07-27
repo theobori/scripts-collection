@@ -7,7 +7,7 @@ readonly RESOLVED_DIR=$(dirname $(realpath ${0}))
 source "${RESOLVED_DIR}/../lib/sc-utils"
 
 # Script version
-readonly VERSION=0.0.1
+readonly VERSION=0.2.0
 
 readonly FILENAME=$(basename ${0})
 
@@ -15,6 +15,7 @@ readonly FILENAME=$(basename ${0})
 HOUR="00"
 MINUTE="00"
 SECOND="00"
+TIMER_STYLE="simple"
 
 function print_help() {
     cat <<USAGE
@@ -22,54 +23,82 @@ ${FILENAME}
 Version ${VERSION}
 
 Optional arguments
-  -h        Show this help message
-  -H        Hours
-  -M        Minutes
-  -S        Seconds
-  -v        Print the script version
+  -h, --help        Show this help message
+  -v, --version     Print the script version
+  --hours           Hours
+  --minutes         Minutes
+  --seconds         Seconds
+  --timer-style     The timer text style ("simple" or "fancy")
 USAGE
 }
 
-function parse() {
-    # Do not change the opts order !
-    while getopts "H:M:S:hv" arg; do
-        case ${arg} in
-            H)
-                if [[ ${OPTARG} -lt 0 || ${OPTARG} -gt 24 ]]; then
+function parse_cli_arguments() {
+    while test $# -gt 0; do
+        case ${1} in
+            "--hours")
+                test $# -ge 2 || return 1
+
+                if [[ ${2} -lt 0 || ${2} -gt 24 ]]; then
                     echo "Invalid hour (0 <= H <= 24)"
                     return 1
                 fi
 
-                HOUR=${OPTARG}
+                HOUR=${2}
+
+                shift 2
                 ;;
 
-            M)
-                if [[ ${OPTARG} -lt 0 || ${OPTARG} -gt 24 ]]; then
+            "--minutes")
+                test $# -ge 2 || return 1
+
+                if [[ ${2} -lt 0 || ${2} -gt 24 ]]; then
                     echo "Invalid minute (0 <= M <= 60)"
                     return 1
                 fi
 
-                MINUTE=${OPTARG}
+                MINUTE=${2}
+
+                shift 2
                 ;;
 
-            S)
-                if [[ ${OPTARG} -lt 0 || ${OPTARG} -gt 24 ]]; then
+            "--seconds")
+                test $# -ge 2 || return 1
+
+                if [[ ${2} -lt 0 || ${2} -gt 24 ]]; then
                     echo "Invalid minute (0 <= S <= 60)"
                     return 1
                 fi
 
-                SECOND=${OPTARG}
+                SECOND=${2}
+
+                shift 2
+                ;;
+            
+            "--timer-style")
+                test $# -ge 2 || return 1
+
+                TIMER_STYLE=${2}
+
+                shift 2
                 ;;
 
-            h)
+            "-h" | "--help")
                 print_help
                 exit 0
                 ;;
-
-            v)
+            
+            "-v" | "--version")
                 echo ${FILENAME} -- ${VERSION}
                 exit 0
                 ;;
+            
+            "--" )
+                break
+                ;;
+            
+            *)
+                return 1
+            ;;
         esac    
     done
 }
@@ -90,7 +119,8 @@ function _timer() {
         $((${seconds} * 1000)) \
         ${notification_id} \
         "normal" \
-        "⏳ ${timer_format}"
+        "⏳ ${timer_format}" \
+        "${TIMER_STYLE}"
     
     notify-send \
         -u "critical" \
@@ -98,7 +128,7 @@ function _timer() {
 }
 
 function main() {
-    parse ${@} || exit 1
+    parse_cli_arguments ${@} || exit 1
 
     _timer
 }

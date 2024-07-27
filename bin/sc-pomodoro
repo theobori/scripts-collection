@@ -7,13 +7,14 @@ RESOLVED_DIR=$(dirname $(realpath ${0}))
 source "${RESOLVED_DIR}/../lib/sc-utils"
 
 # Script version
-readonly VERSION=0.0.1
+readonly VERSION=0.2.0
 
 readonly FILENAME=$(basename ${0})
 
 # Default variables
 WORK_DURATION=1500000 # 25 minutes
 PAUSE_DURATION=300000 # 5 minutes
+TIMER_STYLE="simple"
 
 function print_help() {
     cat <<USAGE
@@ -21,43 +22,68 @@ ${FILENAME}
 Version ${VERSION}
 
 Optional arguments
-  -h        Show this help message
-  -w        Work duration (in minutes)
-  -p        Pause duration (in minutes)
-  -v        Print the script version
+  -h, --help            Show this help message
+  -v, --version         Print the script version
+  -w, --work            Work duration (in minutes)
+  -p, --pause           Pause duration (in minutes)
+  --timer-style         The timer text style ("simple" or "fancy")
 USAGE
 }
 
-function parse() {
-    while getopts "w:p:hv" arg; do
-        case ${arg} in
-            w)
-                if [[ ${OPTARG} -lt 5 ]]; then
+function parse_cli_arguments() {
+    while test $# -gt 0; do
+        case ${1} in
+            "-w" | "--work")
+                test $# -ge 2 || return 1
+
+                if [[ ${2} -lt 5 ]]; then
                     echo "The minimum work duration must be 5 minutes"
                     return 1
                 fi
 
-                WORK_DURATION=$((${OPTARG} * 60 * 1000))
+                WORK_DURATION=$((${2} * 60 * 1000))
+
+                shift 2
                 ;;
             
-            p)
-                if [[ ${OPTARG} -lt 1 ]]; then
+            "-p" | "--pause")
+                test $# -ge 2 || return 1
+
+                if [[ ${2} -lt 1 ]]; then
                     echo "The minimum pause duration must be 1 minutes"
                     return 1
                 fi
 
-                PAUSE_DURATION=$((${OPTARG} * 60 * 1000))
+                PAUSE_DURATION=$((${2} * 60 * 1000))
+
+                shift 2
+                ;;
+            
+            "--timer-style")
+                test $# -ge 2 || return 1
+
+                TIMER_STYLE=${2}
+
+                shift 2
                 ;;
 
-            h)
+            "-h" | "--help")
                 print_help
                 exit 0
                 ;;
-
-            v)
+            
+            "-v" | "--version")
                 echo ${FILENAME} -- ${VERSION}
                 exit 0
                 ;;
+            
+            "--" )
+                break
+                ;;
+            
+            *)
+                return 1
+            ;;
         esac    
     done
 }
@@ -66,14 +92,14 @@ function parse() {
 function work() {
     local -r summary="👍 Focus & work !"
 
-    timer ${WORK_DURATION} ${1} "normal" "${summary}"
+    timer ${WORK_DURATION} ${1} "normal" "${summary}" "${TIMER_STYLE}"
 }
 
 # ${1} Notification ID
 function pause() {
     local -r summary="⏱️ Take a pause !"
     
-    timer ${PAUSE_DURATION} ${1} "critical" "${summary}"
+    timer ${PAUSE_DURATION} ${1} "critical" "${summary}" "${TIMER_STYLE}"
 }
 
 function pomodoro() {
@@ -86,7 +112,7 @@ function pomodoro() {
 }
 
 function main() {
-    parse $@ || exit 1
+    parse_cli_arguments $@ || exit 1
 
     pomodoro
 }

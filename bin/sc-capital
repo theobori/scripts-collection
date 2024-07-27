@@ -7,7 +7,7 @@ RESOLVED_DIR=$(dirname $(realpath ${0}))
 source "${RESOLVED_DIR}/../lib/sc-capitals"
 
 # Script version
-readonly VERSION=0.0.1
+readonly VERSION=0.2.0
 readonly FILENAME=$(basename ${0})
 
 # Script constants
@@ -16,7 +16,7 @@ readonly EMOJI_LOOSE=❌
 
 # Variables
 # "guess" || "answer"
-JOB="guess"
+ACTION="guess"
 COUNTRY=$(random_country)
 CAPITAL=""
 
@@ -26,38 +26,54 @@ ${FILENAME}
 Version ${VERSION}
 
 Optional arguments
-  -h        Show this help message
-  -n        Select a country to guess
-  -a        Give the answer instead of guess
-  -g        Guess the capital
-  -v        Print the script version
+  -h, --help        Show this help message
+  -c, --country     Select a country to guess
+  --answer          Give the answer instead of guess
+  --guess           Guess the capital
+  -v, --version     Print the script version
 USAGE
 }
 
-function parse() {
-    while getopts "n:c:ahvg" arg; do
-        case ${arg} in
-            a)
-                JOB="answer"
+function parse_cli_arguments() {
+    while test $# -gt 0; do
+        case ${1} in
+            "--answer")
+                ACTION="answer"
+
+                shift
                 ;;
 
-            g)
-                JOB="guess"
+            "--guess")
+                ACTION="guess"
+
+                shift
                 ;;
 
-            n)
-                COUNTRY="${OPTARG}"
+            "-c" | "--country")
+                test $# -ge 2 || return 1
+
+                COUNTRY="${2}"
+
+                shift 2
                 ;;
 
-            h)
+            "-h" | "--help")
                 print_help
                 exit 0
                 ;;
-
-            v)
+            
+            "-v" | "--version")
                 echo ${FILENAME} -- ${VERSION}
                 exit 0
                 ;;
+            
+            "--" )
+                break
+                ;;
+            
+            *)
+                return 1
+            ;;
         esac    
     done
 
@@ -93,7 +109,7 @@ function _guess() {
 }
 
 function capital() {
-    case ${JOB} in
+    case ${ACTION} in
         "guess")
             _guess
             ;;
@@ -105,7 +121,7 @@ function capital() {
 }
 
 function main() {
-    parse "${@}" || exit 1
+    parse_cli_arguments "${@}" || exit 1
 
     capital
 }

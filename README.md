@@ -1,6 +1,9 @@
-# 💻 scripts-collection
+# Scripts collection
+
+This repository contains some shell scripts I have made. Most of them are made for Bash.
 
 ## 📖 How to build and run ?
+
 1. Install the dependencies
     - `bash>=4.0` (or at least a shell supporting bash)
     - Basic Linux binaries
@@ -8,22 +11,30 @@
 
 2. Run `make` to get informations
 
+Feel free to override `PREFIX_DIR` if needed.
+
+For example you could install the scripts for the user only with the following command line.
+
+```bash
+PREFIX_DIR=~/.local/ make install
+```
+
 ## ℹ️ Scripts informations
 
-Name            | Status          | Install         | With permissions¹
-:-------------  | :-------------: | :-------------: | :-------------:
-**`sc-wall`** | ✅ | ✅ | ❌
-**`sc-install_discord`** | ✅ | ❌ | ✅
-**`sc-install_terraform`** | ✅ | ❌ | ✅
-**`sc-install_tor`** | ✅ | ❌ | ✅
-**`sc-snake`** | ✅ | ✅ | ❌
-**`sc-anonfile`** | ✅ | ✅ | ❌
-**`sc-update_sc`** | ✅ | ✅ | ✅
-**`sc-fullrm_nix`** | ✅ | ❌ | ✅
-**`sc-docker_ps_len`** | ✅ | ✅ | ❌
-**`sc-pomodoro`** | ✅ | ✅ | ❌
-**`sc-timer`** | ✅ | ✅ | ❌
-**`sc-colors`** | ✅ | ✅ | ❌
-**`sc-capital`** | ✅ | ✅ | ❌
+Here are informations about the scripts.
+
+Name            | Installable         | With permissions¹
+:-------------   | :-------------: | :-------------:
+`sc-wall` | ✅ | ❌
+`sc-install_discord` | ❌ | ✅
+`sc-install_terraform` | ❌ | ✅
+`sc-install_tor` | ❌ | ✅
+`sc-snake` | ✅ | ❌
+`sc-fullrm_nix` | ❌ | ✅
+`sc-docker_ps_len` | ✅ | ❌
+`sc-pomodoro` | ✅ | ❌
+`sc-timer` | ✅ | ❌
+`sc-colors` | ✅ | ❌
+`sc-capital` | ✅ | ❌
 
 ¹: *Most of the time when it required permission, it must be run as `root`*

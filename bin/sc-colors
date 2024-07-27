@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Script version
-readonly VERSION=0.0.1
+readonly VERSION=0.2.0
 readonly FILENAME=$(basename ${0})
 
 read -d "" -r SPRITE <<EOS
@@ -23,68 +23,86 @@ ${FILENAME}
 Version ${VERSION}
 
 Optional arguments
-  -h        Show this help message
-  -v        Print the script version
-  -r        Sprite (from stdin) 
-  -s        Sprite 
-  -W        Width
-  -H        Height
+  -h, --help        Show this help message
+  -v, --version     Print the script version
+  --stdin           Sprite (from stdin) 
+  -s, --sprite      Sprite 
+  --width           Width
+  --height          Height
 USAGE
 }
 
-function parse() {
-    while getopts "W:H:s:hvr" arg; do
-        case ${arg} in
-            W)
-                if [[ ${OPTARG} -lt 1 ]]; then
+function parse_cli_arguments() {
+    while test $# -gt 0; do
+        case ${1} in
+            "--width")
+                test $# -ge 2 || return 1
+
+                if [[ ${2} -lt 1 ]]; then
                     echo "Invalid width (w >= 1)"
                     return 1
                 fi
 
-                WIDTH=${OPTARG}
+                WIDTH=${2}
+
+                shift 2
                 ;;
             
-            H)
-                if [[ ${OPTARG} -lt 1 ]]; then
+            "--height")
+                test $# -ge 2 || return 1
+
+                if [[ ${2} -lt 1 ]]; then
                     echo "Invalid height (h >= 1)"
                     return 1
                 fi
 
-                HEIGHT=${OPTARG}
+                HEIGHT=${2}
+                
+                shift 2
                 ;;
 
-            r)
+            "--stdin")
                 IFS= read -d '' -n 1 SPRITE   
                 
                 while IFS= read -d '' -n 1 -t 2 c
                 do
                     SPRITE+=${c}
                 done
+
+                shift
                 ;;
             
-            s)
-                SPRITE=${OPTARG}
+            "-s" | "--sprite")
+                test $# -ge 2 || return 1
+
+                SPRITE=${2}
+
+                shift 2
                 ;;
 
-            h)
+            "-h" | "--help")
                 print_help
                 exit 0
                 ;;
             
-            v)
+            "-v" | "--version")
                 echo ${FILENAME} -- ${VERSION}
                 exit 0
                 ;;
             
+            "--" )
+                break
+                ;;
+            
             *)
-                return 0
+                return 1
             ;;
         esac
     done
 }
 
-# $1 string to draw
-# $2 how many
+# ${1} string to draw
+# ${2} how many
 function _print_line() {
     local -r lines=$(echo "${1}" | wc -l)
     local line_y=1
@@ -104,9 +122,9 @@ function _print_line() {
     done
 }
 
-# $1 w
-# $2 h
-# $3 string to draw
+# ${1} w
+# ${2} h
+# ${3} string to draw
 function _print() {
     for (( i = 0 ; i < ${2} ; i++)); do
         _print_line "${3}" ${1}
@@ -115,7 +133,7 @@ function _print() {
 }
 
 function main() {
-    parse ${@} || exit 1
+    parse_cli_arguments ${@} || exit 1
 
     _print ${WIDTH} ${HEIGHT} "${SPRITE}"
 }

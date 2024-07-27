@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Script version
-readonly VERSION=0.0.1
+readonly VERSION=0.2.0
 
 readonly FILENAME=$(basename ${0})
 
@@ -25,49 +25,67 @@ ${FILENAME}
 Version ${VERSION}
 
 Optional arguments
-  -h        Show this help message
-  -c        Twitch channel name
-  -d        Display name
-  -v        Print the script version
-  -n        Enable notification when the streamer is live
+  -h, --help             Show this help message
+  -v, --version          Print the script version
+  -c, --channel          Twitch channel name
+  -d, --display          Display name
+  -n, --notification     Enable notification when the streamer is live
 USAGE
 }
 
-function parse() {
-    while getopts "c:d:hvn" arg; do
-        case ${arg} in
-            c)
-                if [[ ${#OPTARG} -le 1 ]]; then
+function parse_cli_arguments() {
+    while test $# -gt 0; do
+        case ${1} in
+            "-c" | "--channel")
+                test $# -ge 2 || return 1
+
+                if [[ ${#2} -le 1 ]]; then
                     echo "Invalid channel name length (c >= 2)"
                     return 1
                 fi
 
-                CHANNEL=${OPTARG}
+                CHANNEL=${2}
                 [[ -z ${DISPLAY_NAME} ]] && DISPLAY_NAME=${CHANNEL}
+
+                shift 2
                 ;;
             
-            d)
-                DISPLAY_NAME=${OPTARG}
+            "-d" | "--display")
+                test $# -ge 2 || return 1
+
+                DISPLAY_NAME=${2}
+
+                shift 2
                 ;;
 
-            n)
+            "-n" | "--notification")
                 NOTIFICATION="true"
 
                 if [[ ! -f ${CACHE_FILE} ]]; then
                     mkdir -p ${CACHE_PREFIX}
                     echo "{}" > ${CACHE_FILE}
                 fi
+
+                shift
                 ;;
 
-            h)
+            "-h" | "--help")
                 print_help
                 exit 0
                 ;;
-
-            v)
+            
+            "-v" | "--version")
                 echo ${FILENAME} -- ${VERSION}
                 exit 0
                 ;;
+            
+            "--" )
+                break
+                ;;
+            
+            *)
+                return 1
+            ;;
         esac    
     done
 }
@@ -159,7 +177,7 @@ function print_status() {
 }
 
 function main() {
-    parse $@ || exit 1
+    parse_cli_arguments $@ || exit 1
 
     handle_button
 

@@ -1,4 +1,4 @@
-PREFIX_DIR=/usr/local
+PREFIX_DIR?=/usr/local
 
 # Symbolic links path
 INSTALL_DIR = $(PREFIX_DIR)/bin
@@ -13,8 +13,6 @@ BINS = $(wildcard $(bin)/*)
 # Scripts that are going to be installed into $(INSTALL_DIR)
 INSTALL_SCRIPTS = sc-wall \
 	sc-snake \
-	sc-anonfile \
-	sc-update_sc \
 	sc-is_live \
 	sc-docker_infos \
 	sc-pomodoro \
@@ -56,15 +54,21 @@ help:
 	@echo "Install the scripts"
 	@echo 
 	@echo "  * Installable scripts are listed in the README file"
-	@echo "  * To install them, run the following command"
+	@echo "  * To install them, run the following command as root"
 	@echo 
-	@echo "    sudo make install"
+	@echo "    make install"
 	@echo 
 	@echo "Uninstall the scripts"
 	@echo 
-	@echo "  * To uninstall them, run the following command"
+	@echo "  * To uninstall them, run the following command as root"
 	@echo 
-	@echo "    sudo make uninstall"
+	@echo "    make uninstall"
 	@echo 
 
-.PHONY: init clean install uninstall re help
+.PHONY: \
+	init \
+	clean \
+	install \
+	uninstall \
+	re \
+	help

@@ -2,8 +2,7 @@
 
 set -e
 
-# See https://github.com/theobori/wall.sh/blob/main/wall.sh
-# A supposed better version
+# This script is a supposed better version that this old old one https://github.com/theobori/wall.sh/blob/main/wall.sh
 
 readonly RESOLVED_DIR=$(dirname $(realpath ${0}))
 
@@ -11,7 +10,7 @@ source "${RESOLVED_DIR}/../lib/sc-curses"
 source "${RESOLVED_DIR}/../lib/sc-utils"
 
 # Script version
-readonly VERSION=0.0.1
+readonly VERSION=0.2.0
 
 readonly FILENAME=$(basename ${0})
 
@@ -35,56 +34,80 @@ ${FILENAME}
 Version ${VERSION}
 
 Optional arguments
-  -h        Show this help message
-  -c        Choose a color between 0 and ${COLORS}
-  -v        Print the script version
-  -b        Block size between 2 and your terminal max width (${MAX_W})
-  -t        Interval before printing a block
-  -r        Every block has a random color
+  -h, --help        Show this help message
+  -c, --color       Choose a color between 0 and ${COLORS}
+  -v, --version     Print the script version
+  -s, --size        Block size between 2 and your terminal max width (${MAX_W})
+  -b, --block       Block symbol, the max lenght is 1
+  -i, --interval    Interval before printing a block
+  -r, --rainbow     Every block has a random color
 EOF
 }
 
-function parse() {
-    while getopts "c:b:t:hvr" arg; do
-        case ${arg} in
-            c)
-                if [[ ${OPTARG} -lt 0 || ${OPTARG} -gt ${COLORS} ]]; then
+function parse_cli_arguments() {
+    while test $# -gt 0; do
+        case ${1} in
+            "-c" | "--color")
+                if [[ ${2} -lt 0 || ${2} -gt ${COLORS} ]]; then
                     echo "Invalid color (0 <= c <= 256)"
                     return 1
                 fi
 
-                COLOR=${OPTARG}
+                COLOR=${2}
+
+                shift 2
                 ;;
 
-            b)
-                if [[ ${OPTARG} -lt 1 || ${OPTARG} -gt ${MAX_W} ]]; then
+            "-s" | "--size")
+                if [[ ${2} -lt 1 || ${2} -gt ${MAX_W} ]]; then
                     echo "Invalid block size (1 <= b <= ${MAX_W})"
                     return 1
                 fi
-    
-                BLOCK_SIZE=${OPTARG}
+
+                BLOCK_SIZE=${2}
+
+                shift 2
+                ;;
+            
+            "-b" | "--block")
+                if [[ ${#2} -ne 1 ]]; then
+                    echo "Invalid block symbol length (must be 1)"
+                    return 1
+                fi
+
+                BLOCK=${2}
+        
+                shift 2
                 ;;
 
-            t)
-                INTERVAL=${OPTARG}
+            "-i" | "--interval")
+                INTERVAL=${2}
+        
+                shift 2
                 ;;
 
-            r)
+            "-r" | "--rainbow")
                 RAINBOW=1
+
+                shift
                 ;;
 
-            h)
+            "-h" | "--help")
                 print_help
                 exit 0
                 ;;
             
-            v)
+            "-v" | "--version")
                 echo ${FILENAME} -- ${VERSION}
                 exit 0
                 ;;
             
+            "--" )
+                break
+                ;;
+            
             *)
-                return 0
+                return 1
             ;;
         esac
     done
@@ -114,10 +137,10 @@ function build_wall() {
 }
 
 function main() {
-    parse ${@} || exit 1
+    parse_cli_arguments ${@} || exit 1
 
-    BLOCK=$(repeat ${BLOCK} ${BLOCK_SIZE})
-    BLOCK_ERASER=$(repeat "\x20" ${BLOCK_SIZE})
+    BLOCK=$(repeat_string ${BLOCK} ${BLOCK_SIZE})
+    BLOCK_ERASER=$(repeat_string "\x20" ${BLOCK_SIZE})
     local -r tmp=${BLOCK}
 
     curses_init

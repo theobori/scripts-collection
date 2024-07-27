@@ -6,6 +6,7 @@ readonly USER_BASE=nixbld
 readonly GROUP=nixbld
 
 # Disable the service
+# Assuming the user is using systemd
 systemctl disable nix-daemon.socket
 systemctl disable nix-daemon.service
 systemctl daemon-reload

@@ -7,6 +7,11 @@ case ${BLOCK_BUTTON} in
 🖼️: images amount"
 esac
 
+if ! docker info &> /dev/null; then
+    echo "Docker must be running"    
+    exit 1
+fi
+
 readonly CONTAINERS=$(docker ps -q | wc -l)
 readonly IMAGES=$(docker images -q | wc -l)
 

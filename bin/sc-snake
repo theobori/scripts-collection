@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-RESOLVED_DIR=$(dirname $(realpath ${0}))
+RESOLVED_DIR=$(dirname $(realpath "${0}"))
 
 source "${RESOLVED_DIR}/../lib/sc-curses"
 
 # Script version
-readonly VERSION=0.0.1
+readonly VERSION=0.2.0
 
 readonly FILENAME=$(basename ${0})
 
@@ -33,61 +33,79 @@ ${FILENAME}
 Version ${VERSION}
 
 Optional arguments
-  -h        Show this help message
-  -c        Choose a color between 0 and ${COLORS}
-  -v        Print the script version
-  -t        Timing the snake
-  -r        Every block has a random color
-  -s        Snake base size
+  -h, --help        Show this help message
+  -v, --version     Print the script version
+  -c, --color       Choose a color between 0 and ${COLORS}
+  -t, --time        Timing the snake
+  -r, --rainbow     Every block has a random color
+  -s, --size        Snake base size
 USAGE
 }
 
-function parse() {
+function parse_cli_arguments() {
     local -r max_size=$(expr ${MAX_W} / 2)
 
-    while getopts "c:s:t:hvr" arg; do
-        case ${arg} in
-            c)
-                if [[ ${OPTARG} -lt 0 || ${OPTARG} -gt ${COLORS} ]]; then
+    while test $# -gt 0; do
+        case ${1} in
+            "-c" | "--color")
+                test $# -ge 2 || return 1
+
+                if [[ ${2} -lt 0 || ${2} -gt ${COLORS} ]]; then
                     echo "Invalid color (0 <= c <= 256)"
                     return 1
                 fi
 
-                COLOR=${OPTARG}
+                COLOR=${2}
+
+                shift 2
                 ;;
             
-            s)
-                if [[ ${OPTARG} -le 0 || ${OPTARG} -gt ${max_size} ]]; then
+            "-s" | "--size")
+                test $# -ge 2 || return 1
+
+                if [[ ${2} -le 0 || ${2} -gt ${max_size} ]]; then
                     echo "Invalid size (0 <= s <= ${max_size})"
                     return 1
                 fi
 
-                X=($(seq 1 ${OPTARG}))
-                for (( i = 1; i < ${OPTARG}; i++ )); do
+                X=($(seq 1 ${2}))
+                for (( i = 1; i < ${2}; i++ )); do
                     Y+=(0);
                 done
+
+                shift 2
                 ;;
 
-            t)
-                INTERVAL=${OPTARG}
+            "-t" | "--time")
+                test $# -ge 2 || return 1
+
+                INTERVAL=${2}
+
+                shift 2
                 ;;
 
-            r)
+            "-r" | "--rainbow")
                 RAINBOW=1
+
+                shift
                 ;;
 
-            h)
+            "-h" | "--help")
                 print_help
                 exit 0
                 ;;
             
-            v)
+            "-v" | "--version")
                 echo ${FILENAME} -- ${VERSION}
                 exit 0
                 ;;
             
+            "--" )
+                break
+                ;;
+            
             *)
-                return 0
+                return 1
             ;;
         esac
     done
@@ -143,6 +161,18 @@ function clear_screen() {
     printf "$(tput cup ${Y[0]} ${X[0]})${ERASER}"
 }
 
+# It is supposed to be a subprocess too
+function check_death() {
+    for (( i = 0; i < $(expr ${#X[@]} - 1) ; i++ )); do
+        if [[
+            ${X[-1]} -eq ${X[${i}]} && \
+            ${Y[-1]} -eq ${Y[${i}]}
+        ]]; then
+            kill -SIGXFSZ ${1}
+        fi
+    done
+}
+
 function update() {
     # Check death
     check_death $$ &
@@ -185,11 +215,27 @@ function print_screen() {
     printf "$(tput cup ${FOOD[1]} ${FOOD[0]})\e[38;5;255m${BLOCK}"
 }
 
+function _move_left() {
+    [[ ${DIRECTION[0]} -ne 1 ]] && DIRECTION=(-1 0)
+}
+
+function _move_right() {
+    [[ ${DIRECTION[0]} -ne -1 ]] && DIRECTION=(1 0)
+}
+
+function _move_up() {
+    [[ ${DIRECTION[1]} -ne 1 ]] && DIRECTION=(0 -1)
+}
+
+function _move_down() {
+    [[ ${DIRECTION[1]} -ne -1 ]] && DIRECTION=(0 1)
+}
+
 function snake_init() {
-    trap "DIRECTION=(0 -1)" SIGALRM 
-    trap "DIRECTION=(-1 0)" SIGUSR1
-    trap "DIRECTION=(0 1)" SIGUSR2
-    trap "DIRECTION=(1 0)" SIGBUS
+    trap "_move_down" SIGUSR2
+    trap "_move_up" SIGALRM 
+    trap "_move_right" SIGBUS
+    trap "_move_left" SIGUSR1
     trap "curses_end" SIGXFSZ
 }
 
@@ -223,20 +269,8 @@ function curses_init() {
     trap cleanup HUP TERM WINCH EXIT SIGINT SIGTERM SIGXFSZ
 }
 
-# It is supposed to be a subprocess too
-function check_death() {
-    for (( i = 0; i < $(expr ${#X[@]} - 1) ; i++ )); do
-        if [[
-            ${X[-1]} -eq ${X[${i}]} && \
-            ${Y[-1]} -eq ${Y[${i}]}
-        ]]; then
-            kill -SIGXFSZ ${1}
-        fi
-    done
-}
-
 function main() {
-    parse ${@} || exit 1
+    parse_cli_arguments ${@} || exit 1
 
     curses_init
     

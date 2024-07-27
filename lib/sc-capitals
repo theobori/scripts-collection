@@ -7,7 +7,7 @@ readonly COUNTRIES=$(echo "${CAPITALS}" | jq 'keys[]')
 readonly COUNTRIES_TOTAL=$(echo "${COUNTRIES}" | wc -l)
 
 function random_country() {
-    local index=$((RANDOM % ${COUNTRIES_TOTAL} + 1))
+    local -r index=$((RANDOM % ${COUNTRIES_TOTAL} + 1))
 
     echo "${COUNTRIES}" | \
         head -n ${index} | \
