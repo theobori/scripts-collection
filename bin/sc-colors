@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
 # Script version
-readonly VERSION=0.2.0
-readonly FILENAME=$(basename ${0})
+readonly VERSION="0.2.0"
+FILENAME="$(basename "${0}")"
+readonly FILENAME
 
 read -d "" -r SPRITE <<EOS
 ─▀▀▌───────▐▀▀─
@@ -18,7 +19,7 @@ WIDTH=4
 HEIGHT=2
 
 function print_help() {
-    cat <<USAGE
+	cat <<USAGE
 ${FILENAME}
 Version ${VERSION}
 
@@ -33,112 +34,112 @@ USAGE
 }
 
 function parse_cli_arguments() {
-    while test $# -gt 0; do
-        case ${1} in
-            "--width")
-                test $# -ge 2 || return 1
+	while test $# -gt 0; do
+		case ${1} in
+		"--width")
+			test $# -ge 2 || return 1
 
-                if [[ ${2} -lt 1 ]]; then
-                    echo "Invalid width (w >= 1)"
-                    return 1
-                fi
+			if [[ ${2} -lt 1 ]]; then
+				echo "Invalid width (w >= 1)"
+				return 1
+			fi
 
-                WIDTH=${2}
+			WIDTH=${2}
 
-                shift 2
-                ;;
-            
-            "--height")
-                test $# -ge 2 || return 1
+			shift 2
+			;;
 
-                if [[ ${2} -lt 1 ]]; then
-                    echo "Invalid height (h >= 1)"
-                    return 1
-                fi
+		"--height")
+			test $# -ge 2 || return 1
 
-                HEIGHT=${2}
-                
-                shift 2
-                ;;
+			if [[ ${2} -lt 1 ]]; then
+				echo "Invalid height (h >= 1)"
+				return 1
+			fi
 
-            "--stdin")
-                IFS= read -d '' -n 1 SPRITE   
-                
-                while IFS= read -d '' -n 1 -t 2 c
-                do
-                    SPRITE+=${c}
-                done
+			HEIGHT=${2}
 
-                shift
-                ;;
-            
-            "-s" | "--sprite")
-                test $# -ge 2 || return 1
+			shift 2
+			;;
 
-                SPRITE=${2}
+		"--stdin")
+			IFS= read -rd '' -n 1 SPRITE
 
-                shift 2
-                ;;
+			while IFS= read -rd '' -n 1 -t 2 c; do
+				SPRITE+=${c}
+			done
 
-            "-h" | "--help")
-                print_help
-                exit 0
-                ;;
-            
-            "-v" | "--version")
-                echo ${FILENAME} -- ${VERSION}
-                exit 0
-                ;;
-            
-            "--" )
-                break
-                ;;
-            
-            *)
-                return 1
-            ;;
-        esac
-    done
+			shift
+			;;
+
+		"-s" | "--sprite")
+			test $# -ge 2 || return 1
+
+			SPRITE=${2}
+
+			shift 2
+			;;
+
+		"-h" | "--help")
+			print_help
+			exit 0
+			;;
+
+		"-v" | "--version")
+			echo "${FILENAME} -- ${VERSION}"
+			exit 0
+			;;
+
+		"--")
+			break
+			;;
+
+		*)
+			return 1
+			;;
+		esac
+	done
 }
 
 # ${1} string to draw
 # ${2} how many
 function _print_line() {
-    local -r lines=$(echo "${1}" | wc -l)
-    local line_y=1
+	local -r lines=$(echo "${1}" | wc -l)
+	local line_y=1
 
-    for (( y = 1 ; y <= ${lines} ; y++)); do
-       local line=$(echo "${1}" | head -n ${line_y} | tail -n 1)
+	for ((y = 1; y <= lines; y++)); do
+		local line
+        line=$(echo "${1}" | head -n ${line_y} | tail -n 1)
 
-        for (( n = 0 ; n < ${2} ; n++)); do
-            local color=$((${CURRENT_COLOR} + ${n}))
-            
-            printf "\e[38;5;${color}m${line}"
-        done
+		for ((n = 0; n < ${2}; n++)); do
+			local color=$((CURRENT_COLOR + n))
 
-        echo
+			printf "\e[38;5;%sm%s" "${color}" "${line}"
+		done
 
-        line_y=$((${line_y} + 1))
-    done
+		echo
+
+		line_y=$((line_y + 1))
+	done
 }
 
 # ${1} w
 # ${2} h
 # ${3} string to draw
 function _print() {
-    for (( i = 0 ; i < ${2} ; i++)); do
-        _print_line "${3}" ${1}
-        CURRENT_COLOR=$((${CURRENT_COLOR} + ${1}))
-    done
+	for ((i = 0; i < ${2}; i++)); do
+		_print_line "${3}" "${1}"
+		CURRENT_COLOR=$((CURRENT_COLOR + ${1}))
+	done
 
-    # Reset terminal color
-    tput sgr0
+	# Reset terminal color
+	tput sgr0
 }
 
 function main() {
-    parse_cli_arguments ${@} || exit 1
+	parse_cli_arguments "${@}" || exit 1
 
-    _print ${WIDTH} ${HEIGHT} "${SPRITE}"
+	_print "${WIDTH}" "${HEIGHT}" "${SPRITE}"
 }
 
-main ${@}
+main "${@}"

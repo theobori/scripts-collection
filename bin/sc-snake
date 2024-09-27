@@ -1,18 +1,23 @@
 #!/usr/bin/env bash
 
-RESOLVED_DIR=$(dirname $(realpath "${0}"))
+RESOLVED_DIR="$(dirname "$(realpath "${0}")")"
 
+# shellcheck source=/dev/null
 source "${RESOLVED_DIR}/../lib/sc-curses"
 
 # Script version
-readonly VERSION=0.2.0
+readonly VERSION="0.2.0"
 
-readonly FILENAME=$(basename ${0})
+FILENAME="$(basename "${0}")"
+readonly FILENAME
 
 # Terminal global infos
-readonly COLORS=$(tput colors)
-readonly MAX_W=$(tput cols)
-readonly MAX_H=$(tput lines)
+COLORS=$(tput colors)
+readonly COLORS
+MAX_W=$(tput cols)
+readonly MAX_W
+MAX_H=$(tput lines)
+readonly MAX_H
 
 # Default vars
 COLOR=255
@@ -43,7 +48,7 @@ USAGE
 }
 
 function parse_cli_arguments() {
-    local -r max_size=$(expr ${MAX_W} / 2)
+    local -r max_size=$(( MAX_W / 2))
 
     while test $# -gt 0; do
         case ${1} in
@@ -68,7 +73,8 @@ function parse_cli_arguments() {
                     return 1
                 fi
 
-                X=($(seq 1 ${2}))
+	            # shellcheck disable=SC2207
+                X=($(seq 1 "${2}"))
                 for (( i = 1; i < ${2}; i++ )); do
                     Y+=(0);
                 done
@@ -96,7 +102,7 @@ function parse_cli_arguments() {
                 ;;
             
             "-v" | "--version")
-                echo ${FILENAME} -- ${VERSION}
+                echo "${FILENAME} -- ${VERSION}"
                 exit 0
                 ;;
             
@@ -114,61 +120,67 @@ function parse_cli_arguments() {
 # Read a key then send signal to the subprocess
 # Take only one argument, ${1} -> PID
 function handle_key() {
-    read -n1 pressed_key
+    read -r -n1 pressed_key
 
     case ${pressed_key} in
         z | Z)
-            kill -SIGALRM ${1}
+            kill -SIGALRM "${1}"
             ;;
 
         q | Q)
-            kill -SIGUSR1 ${1}
+            kill -SIGUSR1 "${1}"
             ;;
 
         s | S)
-            kill -SIGUSR2 ${1}
+            kill -SIGUSR2 "${1}"
             ;;
 
         d | D)
-            kill -SIGBUS ${1}
+            kill -SIGBUS "${1}"
             ;;
     esac
 }
 
 function handle_keys() {
     while :; do
-        handle_key ${1}
+        handle_key "${1}"
     done
 }
 
 function random_food() {
-    local -r x=$((RANDOM % ${MAX_W}))
-    local -r y=$((RANDOM % ${MAX_H}))
+    local -r x=$((RANDOM % MAX_W))
+    local -r y=$((RANDOM % MAX_H))
 
-    FOOD=(${x} ${y})
+    FOOD=("${x}" "${y}")
 }
 
 function print_head() {
     if [[ ${RAINBOW} -eq 1 ]]; then
-        COLOR=$((RANDOM % ${COLORS}))
+        COLOR=$((RANDOM % COLORS))
     fi
 
-    printf "$(tput cup ${Y[-1]} ${X[-1]})\e[38;5;${COLOR}m${BLOCK}"
+    tput cup "${Y[-1]}" "${X[-1]}"
+
+    printf "\e[38;5;%sm${BLOCK}" "${COLOR}"
 }
 
 function clear_screen() {
     # Erase the tail
-    printf "$(tput cup ${Y[0]} ${X[0]})${ERASER}"
+
+    tput cup "${Y[0]}" "${X[0]}"
+
+	# shellcheck disable=SC2059
+    printf "${ERASER}"
 }
 
 # It is supposed to be a subprocess too
 function check_death() {
-    for (( i = 0; i < $(expr ${#X[@]} - 1) ; i++ )); do
+    for (( i = 0; i < $(( ${#X[@]} - 1)) ; i++ )); do
         if [[
             ${X[-1]} -eq ${X[${i}]} && \
             ${Y[-1]} -eq ${Y[${i}]}
         ]]; then
-            kill -SIGXFSZ ${1}
+            kill -SIGXFSZ "${1}"
         fi
     done
 }
@@ -182,8 +194,8 @@ function update() {
         ${X[-1]} -eq ${FOOD[0]} && \
         ${Y[-1]} -eq ${FOOD[1]} 
     ]]; then
-        X=(0 ${X[@]})
-        Y=(0 ${Y[@]})
+        X=(0 "${X[@]}")
+        Y=(0 "${Y[@]}")
         FOOD=("-1" "-1")
     fi
 
@@ -196,23 +208,25 @@ function update() {
     fi
 
     # Append a ${BLOCK} to the head
-    X+=($(expr ${X[-1]} + ${DIRECTION[0]}))
-    Y+=($(expr ${Y[-1]} + ${DIRECTION[1]}))
+    X+=($((X[-1] + DIRECTION[0])))
+    Y+=($((Y[-1] + DIRECTION[1])))
 
     # Pop the tail
     X=("${X[@]:1}")
     Y=("${Y[@]:1}")
 
     # Check out of bounds
-    [[ ${X[-1]} -lt 0 ]] && X[-1]=$(expr ${MAX_W} - 1)
-    [[ ${X[-1]} -gt $(expr ${MAX_W} - 1) ]] && X[-1]=0
-    [[ ${Y[-1]} -lt 0 ]] && Y[-1]=$(expr ${MAX_H} - 1)
-    [[ ${Y[-1]} -gt $(expr ${MAX_H} - 1) ]] && Y[-1]=0
+    [[ ${X[-1]} -lt 0 ]] && X[-1]=$((MAX_W - 1))
+    [[ ${X[-1]} -gt $((MAX_W - 1)) ]] && X[-1]=0
+    [[ ${Y[-1]} -lt 0 ]] && Y[-1]=$((MAX_H - 1))
+    [[ ${Y[-1]} -gt $((MAX_H - 1)) ]] && Y[-1]=0
 }
 
 function print_screen() {
     print_head
-    printf "$(tput cup ${FOOD[1]} ${FOOD[0]})\e[38;5;255m${BLOCK}"
+    tput cup "${FOOD[1]}" "${FOOD[0]}"
+    # shellcheck disable=SC2059
+    printf "\e[38;5;255m${BLOCK}"
 }
 
 function _move_left() {
@@ -248,13 +262,13 @@ function snake() {
         update
         print_screen
 
-        sleep ${INTERVAL}
+        sleep "${INTERVAL}"
     done
 }
 
 function cleanup() {
     # Killing sub processes
-    kill $(jobs -pr)
+    kill "$(jobs -pr)"
 
     curses_end
 }
@@ -270,7 +284,7 @@ function curses_init() {
 }
 
 function main() {
-    parse_cli_arguments ${@} || exit 1
+    parse_cli_arguments "${@}" || exit 1
 
     curses_init
     
@@ -280,4 +294,4 @@ function main() {
     curses_reset
 }
 
-main ${@}
+main "${@}"

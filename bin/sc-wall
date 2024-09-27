@@ -4,21 +4,29 @@ set -e
 
 # This script is a supposed better version that this old old one https://github.com/theobori/wall.sh/blob/main/wall.sh
 
-readonly RESOLVED_DIR=$(dirname $(realpath ${0}))
+RESOLVED_DIR="$(dirname "$(realpath "${0}")")"
+readonly RESOLVED_DIR
 
+# shellcheck source=/dev/null
 source "${RESOLVED_DIR}/../lib/sc-curses"
+# shellcheck source=/dev/null
 source "${RESOLVED_DIR}/../lib/sc-utils"
 
 # Script version
-readonly VERSION=0.2.0
+readonly VERSION="0.2.0"
 
-readonly FILENAME=$(basename ${0})
+FILENAME="$(basename "${0}")"
+readonly FILENAME
 
 # Terminal global infos
-readonly COLORS=$(tput colors)
-readonly MAX_W=$(tput cols)
-readonly MAX_H=$(tput lines)
-readonly MAX_BLOCKS=$((${MAX_H} * ${MAX_W}))
+COLORS=$(tput colors)
+readonly COLORS
+MAX_W=$(tput cols)
+readonly MAX_W
+MAX_H=$(tput lines)
+readonly MAX_H
+MAX_BLOCKS=$((MAX_H * MAX_W))
+readonly MAX_BLOCKS
 
 BLOCK="\xe2\x96\x88"
 
@@ -29,7 +37,7 @@ INTERVAL=0.01
 RAINBOW=0
 
 function print_help() {
-    cat <<EOF
+	cat <<EOF
 ${FILENAME}
 Version ${VERSION}
 
@@ -45,115 +53,118 @@ EOF
 }
 
 function parse_cli_arguments() {
-    while test $# -gt 0; do
-        case ${1} in
-            "-c" | "--color")
-                if [[ ${2} -lt 0 || ${2} -gt ${COLORS} ]]; then
-                    echo "Invalid color (0 <= c <= 256)"
-                    return 1
-                fi
+	while test $# -gt 0; do
+		case ${1} in
+		"-c" | "--color")
+			if [[ ${2} -lt 0 || ${2} -gt ${COLORS} ]]; then
+				echo "Invalid color (0 <= c <= 256)"
+				return 1
+			fi
 
-                COLOR=${2}
+			COLOR=${2}
 
-                shift 2
-                ;;
+			shift 2
+			;;
 
-            "-s" | "--size")
-                if [[ ${2} -lt 1 || ${2} -gt ${MAX_W} ]]; then
-                    echo "Invalid block size (1 <= b <= ${MAX_W})"
-                    return 1
-                fi
+		"-s" | "--size")
+			if [[ ${2} -lt 1 || ${2} -gt ${MAX_W} ]]; then
+				echo "Invalid block size (1 <= b <= ${MAX_W})"
+				return 1
+			fi
 
-                BLOCK_SIZE=${2}
+			BLOCK_SIZE=${2}
 
-                shift 2
-                ;;
-            
-            "-b" | "--block")
-                if [[ ${#2} -ne 1 ]]; then
-                    echo "Invalid block symbol length (must be 1)"
-                    return 1
-                fi
+			shift 2
+			;;
 
-                BLOCK=${2}
-        
-                shift 2
-                ;;
+		"-b" | "--block")
+			if [[ ${#2} -ne 1 ]]; then
+				echo "Invalid block symbol length (must be 1)"
+				return 1
+			fi
 
-            "-i" | "--interval")
-                INTERVAL=${2}
-        
-                shift 2
-                ;;
+			BLOCK=${2}
 
-            "-r" | "--rainbow")
-                RAINBOW=1
+			shift 2
+			;;
 
-                shift
-                ;;
+		"-i" | "--interval")
+			INTERVAL=${2}
 
-            "-h" | "--help")
-                print_help
-                exit 0
-                ;;
-            
-            "-v" | "--version")
-                echo ${FILENAME} -- ${VERSION}
-                exit 0
-                ;;
-            
-            "--" )
-                break
-                ;;
-            
-            *)
-                return 1
-            ;;
-        esac
-    done
+			shift 2
+			;;
+
+		"-r" | "--rainbow")
+			RAINBOW=1
+
+			shift
+			;;
+
+		"-h" | "--help")
+			print_help
+			exit 0
+			;;
+
+		"-v" | "--version")
+			echo "${FILENAME} -- ${VERSION}"
+			exit 0
+			;;
+
+		"--")
+			break
+			;;
+
+		*)
+			return 1
+			;;
+		esac
+	done
 }
 
 function build_wall() {
-    local x=${1}
-    local y=${2}
-    local -r max=$(expr ${MAX_BLOCKS} / ${BLOCK_SIZE})
+	local x=${1}
+	local y=${2}
+	local -r max=$((MAX_BLOCKS / BLOCK_SIZE))
 
-    for (( i = 0; i < ${max} ; i++ )); do
-        if [[ $(expr ${x} + ${BLOCK_SIZE}) -gt ${MAX_W} ]]; then
-            x=0
-            y=$(expr ${y} + 1)
-            echo
-        fi
+	for ((i = 0; i < max; i++)); do
+		if [[ $((x + BLOCK_SIZE)) -gt MAX_W ]]; then
+			x=0
+			y=$((y + 1))
+			echo
+		fi
 
-        if [[ ${RAINBOW} -eq 1 ]]; then
-            COLOR=$((RANDOM % ${COLORS}))
-        fi
+		if [[ ${RAINBOW} -eq 1 ]]; then
+			COLOR=$((RANDOM % COLORS))
+		fi
 
-        printf "$(tput cup ${y} ${x})\e[38;5;${COLOR}m${BLOCK}"
-        sleep ${INTERVAL}
+        tput cup "${y}" "${x}"
 
-        x=$(expr ${x} + ${BLOCK_SIZE})
-    done
+	    # shellcheck disable=SC2059
+		printf "\e[38;5;${COLOR}m${BLOCK}"
+		sleep "${INTERVAL}"
+
+		x=$((x + BLOCK_SIZE))
+	done
 }
 
 function main() {
-    parse_cli_arguments ${@} || exit 1
+	parse_cli_arguments "${@}" || exit 1
 
-    BLOCK=$(repeat_string ${BLOCK} ${BLOCK_SIZE})
-    BLOCK_ERASER=$(repeat_string "\x20" ${BLOCK_SIZE})
-    local -r tmp=${BLOCK}
+	BLOCK=$(repeat_string "${BLOCK}" "${BLOCK_SIZE}")
+	BLOCK_ERASER=$(repeat_string "\x20" "${BLOCK_SIZE}")
+	local -r tmp="${BLOCK}"
 
-    curses_init
-    
-    while :; do
-        build_wall 0 ${MAX_H}
+	curses_init
 
-        BLOCK=${BLOCK_ERASER}
-        build_wall 0 0
-        BLOCK=${tmp}
-    done
-    
-    curses_reset
+	while :; do
+		build_wall 0 "${MAX_H}"
+
+		BLOCK="${BLOCK_ERASER}"
+		build_wall 0 0
+		BLOCK="${tmp}"
+	done
+
+	curses_reset
 }
 
-main ${@}
+main "${@}"

@@ -16,37 +16,28 @@ readonly OUTPUT="terraform_${VERSION}_${ARCH}.zip"
 cd /tmp
 
 # Download checksum and checksum signature
-wget \
-    ${CHECKSUM_URL} \
-    ${CHECKSUM_URL}.sig
+wget "${CHECKSUM_URL}" "${CHECKSUM_URL}.sig"
 
 # Import Hashicorp public key
 curl -s https://www.hashicorp.com/.well-known/pgp-key.txt | gpg --import -
 
 # Verify signature file integrity
-gpg --verify ${CHECKSUM_FILE}.sig ${CHECKSUM_FILE}
-
-if [[ $? -ne 0 ]]; then
-    echo "An error occured while verifying gpg signature"
-    exit 1
+if ! gpg --verify "${CHECKSUM_FILE}.sig" "${CHECKSUM_FILE}"; then
+	echo "An error occured while verifying gpg signature"
+	exit 1
 fi
 
 wget \
-    -O ${OUTPUT} \
-    "https://releases.hashicorp.com/terraform/${VERSION}/${OUTPUT}"
+	-O "${OUTPUT}" \
+	"https://releases.hashicorp.com/terraform/${VERSION}/${OUTPUT}"
 
 # Verify checksum
-sha256sum \
-    -c \
-    --ignore-missing \
-    ${CHECKSUM_FILE}
-
-if [[ $? -ne 0 ]]; then
-    echo "An error occured while verifying checksum"
-    exit 1
+if ! sha256sum -c --ignore-missing "${CHECKSUM_FILE}"; then
+	echo "An error occured while verifying checksum"
+	exit 1
 fi
 
 # Uncompress
-unzip ${OUTPUT}
+unzip "${OUTPUT}"
 mv terraform /usr/bin
-rm -f ${OUTPUT}
+rm -f "${OUTPUT}"

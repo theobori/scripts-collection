@@ -1,13 +1,16 @@
 #!/usr/bin/env bash
 
-RESOLVED_DIR=$(dirname $(realpath ${0}))
+RESOLVED_DIR=$(dirname "$(realpath "${0}")")
 
-readonly CAPITALS=$(cat ${RESOLVED_DIR}/../lib/country-list.json)
-readonly COUNTRIES=$(echo "${CAPITALS}" | jq 'keys[]')
-readonly COUNTRIES_TOTAL=$(echo "${COUNTRIES}" | wc -l)
+CAPITALS=$(cat "${RESOLVED_DIR}/../lib/country-list.json")
+readonly CAPITALS
+COUNTRIES=$(echo "${CAPITALS}" | jq 'keys[]')
+readonly COUNTRIES
+COUNTRIES_TOTAL=$(echo "${COUNTRIES}" | wc -l)
+readonly COUNTRIES_TOTAL
 
 function random_country() {
-    local -r index=$((RANDOM % ${COUNTRIES_TOTAL} + 1))
+    local -r index=$((RANDOM % COUNTRIES_TOTAL + 1))
 
     echo "${COUNTRIES}" | \
         head -n ${index} | \

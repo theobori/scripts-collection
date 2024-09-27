@@ -2,26 +2,28 @@
 
 set -e
 
-RESOLVED_DIR=$(dirname $(realpath ${0}))
+RESOLVED_DIR="$(dirname "$(realpath "${0}")")"
 
+# shellcheck source=/dev/null
 source "${RESOLVED_DIR}/../lib/sc-capitals"
 
 # Script version
-readonly VERSION=0.2.0
-readonly FILENAME=$(basename ${0})
+readonly VERSION="0.2.0"
+FILENAME="$(basename "${0}")"
+readonly FILENAME
 
 # Script constants
-readonly EMOJI_WIN=✅
-readonly EMOJI_LOOSE=❌
+readonly EMOJI_WIN="✅"
+readonly EMOJI_LOOSE="❌"
 
 # Variables
 # "guess" || "answer"
 ACTION="guess"
-COUNTRY=$(random_country)
+COUNTRY="$(random_country)"
 CAPITAL=""
 
 function print_help() {
-    cat <<USAGE
+	cat <<USAGE
 ${FILENAME}
 Version ${VERSION}
 
@@ -35,95 +37,97 @@ USAGE
 }
 
 function parse_cli_arguments() {
-    while test $# -gt 0; do
-        case ${1} in
-            "--answer")
-                ACTION="answer"
+	while test $# -gt 0; do
+		case ${1} in
+		"--answer")
+			ACTION="answer"
 
-                shift
-                ;;
+			shift
+			;;
 
-            "--guess")
-                ACTION="guess"
+		"--guess")
+			ACTION="guess"
 
-                shift
-                ;;
+			shift
+			;;
 
-            "-c" | "--country")
-                test $# -ge 2 || return 1
+		"-c" | "--country")
+			test $# -ge 2 || return 1
 
-                COUNTRY="${2}"
+			COUNTRY="${2}"
 
-                shift 2
-                ;;
+			shift 2
+			;;
 
-            "-h" | "--help")
-                print_help
-                exit 0
-                ;;
-            
-            "-v" | "--version")
-                echo ${FILENAME} -- ${VERSION}
-                exit 0
-                ;;
-            
-            "--" )
-                break
-                ;;
-            
-            *)
-                return 1
-            ;;
-        esac    
-    done
+		"-h" | "--help")
+			print_help
+			exit 0
+			;;
 
-    # Avoiding conflict with double quotes
-    COUNTRY=$(echo ${COUNTRY} | sed 's/\"//g')
+		"-v" | "--version")
+			echo "${FILENAME} -- ${VERSION}"
+			exit 0
+			;;
 
-    local -r exist=$(echo "${CAPITALS}" | \
-        jq "has(\"${COUNTRY}\")"
-    )
+		"--")
+			break
+			;;
 
-    if [[ "${exist}" == "false" ]]; then
-        return 1
-    fi
+		*)
+			return 1
+			;;
+		esac
+	done
 
-    CAPITAL=$(
-        echo "${CAPITALS}" | \
-        jq ".\"${COUNTRY}\"" | \
-        sed 's/\"//g'
-    )
+	# Avoiding conflict with double quotes
+	COUNTRY="${COUNTRY//\"/}"
+
+	local -r exist=$(
+		# shellcheck disable=SC2153
+        echo "${CAPITALS}" |
+			jq "has(\"${COUNTRY}\")"
+	)
+
+	if [[ "${exist}" == "false" ]]; then
+		return 1
+	fi
+
+	CAPITAL=$(
+		echo "${CAPITALS}" |
+			jq ".\"${COUNTRY}\"" |
+			sed 's/\"//g'
+	)
 }
 
 function _guess() {
-    echo "❓ What is the capital of ${COUNTRY}"
+	echo "❓ What is the capital of ${COUNTRY}"
 
-    read -p "✏️ " response
-    echo
-    
-    if [[ "${response}" == "${CAPITAL}" ]]; then
-        echo "${EMOJI_WIN} Congratulation !"
-    else
-        echo "${EMOJI_LOOSE} The ${COUNTRY} capital was ${CAPITAL}"
-    fi
+	read -rp "✏️ " response
+	echo
+
+	if [[ "${response}" == "${CAPITAL}" ]]; then
+		echo "${EMOJI_WIN} Congratulation !"
+	else
+		echo "${EMOJI_LOOSE} The ${COUNTRY} capital was ${CAPITAL}"
+	fi
 }
 
 function capital() {
-    case ${ACTION} in
-        "guess")
-            _guess
-            ;;
-        
-        "answer")
-            echo "❔ The capital of ${COUNTRY} is ${CAPITAL}"
-            ;;
-    esac
+	case ${ACTION} in
+	"guess")
+		_guess
+		;;
+
+	"answer")
+		echo "❔ The capital of ${COUNTRY} is ${CAPITAL}"
+		;;
+	esac
 }
 
 function main() {
-    parse_cli_arguments "${@}" || exit 1
+	parse_cli_arguments "${@}" || exit 1
 
-    capital
+	capital
 }
 
 main "${@}"

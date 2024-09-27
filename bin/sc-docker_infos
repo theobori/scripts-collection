@@ -3,16 +3,18 @@
 set -e
 
 case ${BLOCK_BUTTON} in
-    3) notify-send "🐋 Docker module" "📦: running containers amount
-🖼️: images amount"
+3) notify-send "🐋 Docker module" "📦: running containers amount
+🖼️: images amount" ;;
 esac
 
-if ! docker info &> /dev/null; then
-    echo "Docker must be running"    
-    exit 1
+if ! docker info &>/dev/null; then
+	echo "Docker must be running"
+	exit 1
 fi
 
-readonly CONTAINERS=$(docker ps -q | wc -l)
-readonly IMAGES=$(docker images -q | wc -l)
+CONTAINERS=$(docker ps -q | wc -l)
+readonly CONTAINERS
+IMAGES=$(docker images -q | wc -l)
+readonly IMAGES
 
 echo "📦${CONTAINERS} 🖼️${IMAGES}"

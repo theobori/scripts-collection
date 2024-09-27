@@ -17,7 +17,7 @@ function curses_reset() {
     tput rmcup
     tput cnorm
     stty echo
-    echo "$(tput sgr0)"
+    tput sgr0
 }
 
 # End the curses session

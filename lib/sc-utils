@@ -8,26 +8,27 @@ readonly TIMER_FIGLET_FONT="contessa"
 # ${1} String to repeat
 # ${2} Repeat iteration amount
 function repeat_string() {
-    local tmp=""
-    
-    for (( i = 0; i < ${2}; i++ )); do
-        tmp+=${1}
-    done
+	local tmp=""
 
-    printf ${tmp}
+	for ((i = 0; i < ${2}; i++)); do
+		tmp+=${1}
+	done
+
+	# shellcheck disable=SC2086
+	printf "%s" ${tmp}
 }
 
 # ${1} Time (in seconds)
 function simple_timer() {
-    date -d@$((${1})) -u +%H:%M:%S
+	date -d@$((${1})) -u +%H:%M:%S
 }
 
 # ${1} Time (in seconds)
 # ${2} Figlet font name (optional)
 function fancy_timer() {
-    local -r font_name=${2:-${TIMER_FIGLET_FONT}}
+	local -r font_name=${2:-${TIMER_FIGLET_FONT}}
 
-    echo "$(figlet -f ${font_name} $(simple_timer ${1}))"
+	figlet -f "${font_name}" "$(simple_timer "${1}")"
 }
 
 # ${1} Total time (in milliseconds)
@@ -36,25 +37,25 @@ function fancy_timer() {
 # ${4} Summary
 # ${5} Timer function prefix name ("simple" or "fancy"), by default "simple"
 function timer() {
-    local total=$((${1} / 1000))
+	local total=$((${1} / 1000))
 
-    local func
+	local func
 
-    case ${5} in
-        "fancy" | "simple")
-            func="${5}_timer"
-            ;;
-        
-        *)
-            func="simple_timer"
-            ;;
-    esac
+	case ${5} in
+	"fancy" | "simple")
+		func="${5}_timer"
+		;;
 
-    for (( i = total; i >= 0; i-- )); do
-        notify-send \
-            -r ${2} \
-            -u ${3} \
-            "${4}" "$(${func} ${i})"
-        sleep 1
-    done
+	*)
+		func="simple_timer"
+		;;
+	esac
+
+	for ((i = total; i >= 0; i--)); do
+		notify-send \
+			-r "${2}" \
+			-u "${3}" \
+			"${4}" "$(${func} ${i})"
+		sleep 1
+	done
 }

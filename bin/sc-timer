@@ -2,14 +2,17 @@
 
 set -e
 
-readonly RESOLVED_DIR=$(dirname $(realpath ${0}))
+RESOLVED_DIR="$(dirname "$(realpath "${0}")")"
+readonly RESOLVED_DIR
 
+# shellcheck source=/dev/null
 source "${RESOLVED_DIR}/../lib/sc-utils"
 
 # Script version
-readonly VERSION=0.2.0
+readonly VERSION="0.2.0"
 
-readonly FILENAME=$(basename ${0})
+FILENAME="$(basename "${0}")"
+readonly FILENAME
 
 # Default vars
 HOUR="00"
@@ -18,7 +21,7 @@ SECOND="00"
 TIMER_STYLE="simple"
 
 function print_help() {
-    cat <<USAGE
+	cat <<USAGE
 ${FILENAME}
 Version ${VERSION}
 
@@ -33,104 +36,104 @@ USAGE
 }
 
 function parse_cli_arguments() {
-    while test $# -gt 0; do
-        case ${1} in
-            "--hours")
-                test $# -ge 2 || return 1
+	while test $# -gt 0; do
+		case ${1} in
+		"--hours")
+			test $# -ge 2 || return 1
 
-                if [[ ${2} -lt 0 || ${2} -gt 24 ]]; then
-                    echo "Invalid hour (0 <= H <= 24)"
-                    return 1
-                fi
+			if [[ ${2} -lt 0 || ${2} -gt 24 ]]; then
+				echo "Invalid hour (0 <= H <= 24)"
+				return 1
+			fi
 
-                HOUR=${2}
+			HOUR=${2}
 
-                shift 2
-                ;;
+			shift 2
+			;;
 
-            "--minutes")
-                test $# -ge 2 || return 1
+		"--minutes")
+			test $# -ge 2 || return 1
 
-                if [[ ${2} -lt 0 || ${2} -gt 24 ]]; then
-                    echo "Invalid minute (0 <= M <= 60)"
-                    return 1
-                fi
+			if [[ ${2} -lt 0 || ${2} -gt 24 ]]; then
+				echo "Invalid minute (0 <= M <= 60)"
+				return 1
+			fi
 
-                MINUTE=${2}
+			MINUTE=${2}
 
-                shift 2
-                ;;
+			shift 2
+			;;
 
-            "--seconds")
-                test $# -ge 2 || return 1
+		"--seconds")
+			test $# -ge 2 || return 1
 
-                if [[ ${2} -lt 0 || ${2} -gt 24 ]]; then
-                    echo "Invalid minute (0 <= S <= 60)"
-                    return 1
-                fi
+			if [[ ${2} -lt 0 || ${2} -gt 24 ]]; then
+				echo "Invalid minute (0 <= S <= 60)"
+				return 1
+			fi
 
-                SECOND=${2}
+			SECOND=${2}
 
-                shift 2
-                ;;
-            
-            "--timer-style")
-                test $# -ge 2 || return 1
+			shift 2
+			;;
 
-                TIMER_STYLE=${2}
+		"--timer-style")
+			test $# -ge 2 || return 1
 
-                shift 2
-                ;;
+			TIMER_STYLE=${2}
 
-            "-h" | "--help")
-                print_help
-                exit 0
-                ;;
-            
-            "-v" | "--version")
-                echo ${FILENAME} -- ${VERSION}
-                exit 0
-                ;;
-            
-            "--" )
-                break
-                ;;
-            
-            *)
-                return 1
-            ;;
-        esac    
-    done
+			shift 2
+			;;
+
+		"-h" | "--help")
+			print_help
+			exit 0
+			;;
+
+		"-v" | "--version")
+			echo "${FILENAME} -- ${VERSION}"
+			exit 0
+			;;
+
+		"--")
+			break
+			;;
+
+		*)
+			return 1
+			;;
+		esac
+	done
 }
 
 function _timer() {
-    local -r notification_id=$(notify-send "⏳ Clock starting" -p)
-    local timer_format="${HOUR}:${MINUTE}:${SECOND}"
+	local -r notification_id=$(notify-send "⏳ Clock starting" -p)
+	local timer_format="${HOUR}:${MINUTE}:${SECOND}"
 
-    # Default timer is 10 seconds
-    if [[ ${timer_format} == "00:00:00" ]]; then
-        SECOND=10
-        timer_format="${HOUR}:${MINUTE}:${SECOND}"
-    fi
+	# Default timer is 10 seconds
+	if [[ ${timer_format} == "00:00:00" ]]; then
+		SECOND=10
+		timer_format="${HOUR}:${MINUTE}:${SECOND}"
+	fi
 
-    local -r seconds=$(echo "${timer_format}" | awk -F: '{ print ($1 * 3600) + ($2 * 60) + $3 }')
+	local -r seconds=$(echo "${timer_format}" | awk -F: '{ print ($1 * 3600) + ($2 * 60) + $3 }')
 
-    timer \
-        $((${seconds} * 1000)) \
-        ${notification_id} \
-        "normal" \
-        "⏳ ${timer_format}" \
-        "${TIMER_STYLE}"
-    
-    notify-send \
-        -u "critical" \
-        "🏆 Finish !"
+	timer \
+		$((seconds * 1000)) \
+		"${notification_id}" \
+		"normal" \
+		"⏳ ${timer_format}" \
+		"${TIMER_STYLE}"
+
+	notify-send \
+		-u "critical" \
+		"🏆 Finish !"
 }
 
 function main() {
-    parse_cli_arguments ${@} || exit 1
+	parse_cli_arguments "${@}" || exit 1
 
-    _timer
+	_timer
 }
 
-main ${@}
+main "${@}"

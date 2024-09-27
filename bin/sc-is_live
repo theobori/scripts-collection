@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 
 # Script version
-readonly VERSION=0.2.0
+readonly VERSION="0.2.0"
 
-readonly FILENAME=$(basename ${0})
+FILENAME="$(basename "${0}")"
+readonly FILENAME
 
 # Constants
 readonly API_URL="https://decapi.me/twitch/uptime"
@@ -20,7 +21,7 @@ DISPLAY_NAME=""
 NOTIFICATION="false"
 
 function print_help() {
-    cat <<USAGE
+	cat <<USAGE
 ${FILENAME}
 Version ${VERSION}
 
@@ -34,155 +35,149 @@ USAGE
 }
 
 function parse_cli_arguments() {
-    while test $# -gt 0; do
-        case ${1} in
-            "-c" | "--channel")
-                test $# -ge 2 || return 1
+	while test $# -gt 0; do
+		case ${1} in
+		"-c" | "--channel")
+			test $# -ge 2 || return 1
 
-                if [[ ${#2} -le 1 ]]; then
-                    echo "Invalid channel name length (c >= 2)"
-                    return 1
-                fi
+			if [[ ${#2} -le 1 ]]; then
+				echo "Invalid channel name length (c >= 2)"
+				return 1
+			fi
 
-                CHANNEL=${2}
-                [[ -z ${DISPLAY_NAME} ]] && DISPLAY_NAME=${CHANNEL}
+			CHANNEL=${2}
+			[[ -z ${DISPLAY_NAME} ]] && DISPLAY_NAME=${CHANNEL}
 
-                shift 2
-                ;;
-            
-            "-d" | "--display")
-                test $# -ge 2 || return 1
+			shift 2
+			;;
 
-                DISPLAY_NAME=${2}
+		"-d" | "--display")
+			test $# -ge 2 || return 1
 
-                shift 2
-                ;;
+			DISPLAY_NAME=${2}
 
-            "-n" | "--notification")
-                NOTIFICATION="true"
+			shift 2
+			;;
 
-                if [[ ! -f ${CACHE_FILE} ]]; then
-                    mkdir -p ${CACHE_PREFIX}
-                    echo "{}" > ${CACHE_FILE}
-                fi
+		"-n" | "--notification")
+			NOTIFICATION="true"
 
-                shift
-                ;;
+			if [[ ! -f ${CACHE_FILE} ]]; then
+				mkdir -p "${CACHE_PREFIX}"
+				echo "{}" >"${CACHE_FILE}"
+			fi
 
-            "-h" | "--help")
-                print_help
-                exit 0
-                ;;
-            
-            "-v" | "--version")
-                echo ${FILENAME} -- ${VERSION}
-                exit 0
-                ;;
-            
-            "--" )
-                break
-                ;;
-            
-            *)
-                return 1
-            ;;
-        esac    
-    done
+			shift
+			;;
+
+		"-h" | "--help")
+			print_help
+			exit 0
+			;;
+
+		"-v" | "--version")
+			echo "${FILENAME} -- ${VERSION}"
+			exit 0
+			;;
+
+		"--")
+			break
+			;;
+
+		*)
+			return 1
+			;;
+		esac
+	done
 }
 
 # i3blocks button event support
 function handle_button() {
-    case ${BLOCK_BUTTON} in
-        1) xdg-open "https://twitch.tv/${CHANNEL}" &> /dev/null &;;
-        3) notify-send "👀 Streamer status module" "\- Left click to open the browser
+	case ${BLOCK_BUTTON} in
+	1) xdg-open "https://twitch.tv/${CHANNEL}" &>/dev/null & ;;
+	3) notify-send "👀 Streamer status module" "\- Left click to open the browser
 ${OFFLINE_EMOJI}: Streamer is offline
 ${ONLINE_EMOJI}: Streamer is online
 ${UNKNOWN_EMOJI}: Unknown satus
 
 ✉️ Send a notification when the streamer is online" ;;
-    esac
+	esac
 }
 
 # ${1} -> current streamer emoji aka status
 function _resolve_emoji() {
-    case ${1} in
-        ${ONLINE_EMOJI}) echo "true" ;;
-        ${OFFLINE_EMOJI}) echo "false" ;;   
-        *) echo "unknown" ;;
-    esac
+	case ${1} in
+	"${ONLINE_EMOJI}") echo "true" ;;
+	"${OFFLINE_EMOJI}") echo "false" ;;
+	*) echo "unknown" ;;
+	esac
 }
 
 # ${1} -> Twitch channel name
 # ${2} -> ${ONLINE_EMOJI} | ${OFFLINE_EMOJI} | ${UNKNOWN_EMOJI}
 function cache_channel() {
-    local -r exist=$(cat "${CACHE_FILE}" | \
-        jq "has(\"${1}\")"
-    )
-    local -r state=$(_resolve_emoji "${2}")
-    local -r udpated_obj=$(cat "${CACHE_FILE}" | \
-        jq ".${1} = ${state}"
-    )
+	local -r exist=$(jq "has(\"${1}\")" <"${CACHE_FILE}")
+	local -r state=$(_resolve_emoji "${2}")
+	local -r udpated_obj=$(jq ".${1} = ${state}" <"${CACHE_FILE}")
 
-    [[ "${state}" == "unknown" ]] && return 1
+	[[ "${state}" == "unknown" ]] && return 1
 
-    if [[ "${exist}" == "false" ]]; then
-        echo "${udpated_obj}" > ${CACHE_FILE}
+	if [[ "${exist}" == "false" ]]; then
+		echo "${udpated_obj}" >"${CACHE_FILE}"
 
-        [[ "${state}" == "true" ]] && return 0
-    fi
+		[[ "${state}" == "true" ]] && return 0
+	fi
 
-    local -r value=$(cat "${CACHE_FILE}" \
-        | jq ".${1}"
-    )
+	local -r value=$(jq ".${1}" <"${CACHE_FILE}")
 
-    echo "${udpated_obj}" > ${CACHE_FILE}
-    
-    if [[
-        "${value}" == "false" && \
-        "${state}" == "true"
-    ]]; then
-        return 0
-    fi
+	echo "${udpated_obj}" >"${CACHE_FILE}"
 
-    return 1
+	if [[ 
+		"${value}" == "false" &&
+		"${state}" == "true" ]] \
+		; then
+		return 0
+	fi
+
+	return 1
 }
 
 # ${1} -> Twitch channel name
 # ${2} -> ${ONLINE_EMOJI} | ${OFFLINE_EMOJI} | ${UNKNOWN_EMOJI}
 function send_notification() {
-    cache_channel $@ || return
+	cache_channel "${@}" || return
 
-    notify-send \
-        -u critical \
-        "👀 ${DISPLAY_NAME} is streaming !"
+	notify-send \
+		-u critical \
+		"👀 ${DISPLAY_NAME} is streaming !"
 }
 
 function print_status() {
-    local -r res=$(curl --silent ${API_URL}/${CHANNEL})
-    local emoji=""
+	local -r res=$(curl --silent "${API_URL}/${CHANNEL}")
+	local emoji=""
 
-    if [[ ${res} =~ "offline" ]]; then
-        emoji=${OFFLINE_EMOJI}
-    elif [[ ${res} =~ "seconds" ]]; then
-        emoji=${ONLINE_EMOJI}
-    else
-        emoji=${UNKNOWN_EMOJI}
-    fi
-    
-    if [[ "${NOTIFICATION}" == "true" ]]; then
-        send_notification ${CHANNEL} ${emoji}
-    fi
+	if [[ ${res} =~ "offline" ]]; then
+		emoji=${OFFLINE_EMOJI}
+	elif [[ ${res} =~ "seconds" ]]; then
+		emoji=${ONLINE_EMOJI}
+	else
+		emoji=${UNKNOWN_EMOJI}
+	fi
 
-    echo "${emoji}${DISPLAY_NAME}"
+	if [[ "${NOTIFICATION}" == "true" ]]; then
+		send_notification "${CHANNEL}" "${emoji}"
+	fi
+
+	echo "${emoji}${DISPLAY_NAME}"
 }
 
 function main() {
-    parse_cli_arguments $@ || exit 1
+	parse_cli_arguments "${@}" || exit 1
 
-    handle_button
+	handle_button
 
-    [[ -z ${CHANNEL} ]] && exit 1
-    print_status
+	[[ -z ${CHANNEL} ]] && exit 1
+	print_status
 }
 
-main $@
+main "${@}"

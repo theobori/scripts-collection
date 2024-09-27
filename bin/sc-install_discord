@@ -7,9 +7,9 @@ cd /tmp
 # Download then extract files
 curl -L "https://discord.com/api/download?platform=linux&format=tar.gz" | tar -xvz
 
-# Update the icon value then install 
+# Update the icon value then install
 sed -i "s/Icon=discord/Icon=\/usr\/share\/discord\/discord.png/g" Discord/discord.desktop
-mv Discord/discord.desktop /usr/share/applications 
+mv Discord/discord.desktop /usr/share/applications
 
 # Avoid naming errors
 rm -rf /usr/share/discord

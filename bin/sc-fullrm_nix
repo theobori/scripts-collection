@@ -2,8 +2,8 @@
 
 set -e
 
-readonly USER_BASE=nixbld
-readonly GROUP=nixbld
+readonly USER_BASE="nixbld"
+readonly GROUP="nixbld"
 
 # Disable the service
 # Assuming the user is using systemd
@@ -20,8 +20,8 @@ rm -r /etc/**/*nix
 rm -rf /nix /etc/nix
 
 # Remove user
-for (( i = 0; i < 32 ; i++ )); do
-    userdel ${USER_BASE}${i}
+for ((i = 0; i < 32; i++)); do
+	userdel ${USER_BASE}${i}
 done
 
 # Remove group

@@ -4,41 +4,38 @@ set -e
 
 readonly VERSION=${1:-"12.0.2"}
 
-readonly DIRNAME=tor-browser
-readonly TARGET=/opt/${DIRNAME}
+readonly DIRNAME="tor-browser"
+readonly TARGET="/opt/${DIRNAME}"
 readonly URL="https://www.torproject.org/dist/torbrowser/${VERSION}/tor-browser-linux64-${VERSION}_ALL.tar.xz"
 
 cd /tmp
 
 # Download
-wget \
-    ${URL} \
-    ${URL}.asc
+wget "${URL}" "${URL}.asc"
 
 # Verify PGP ssignature
 curl -s https://openpgpkey.torproject.org/.well-known/openpgpkey/torproject.org/hu/kounek7zrdx745qydx6p59t9mqjpuhdf | gpg --import -
 
 gpg \
-    --output ./tor.keyring \
-    --export 0xEF6E286DDA85EA2A4BA7DE684E2C6E8793298290
-gpgv \
-    --keyring ./tor.keyring \
-    tor-browser-linux64-${VERSION}_ALL.tar.xz.asc \
-    tor-browser-linux64-${VERSION}_ALL.tar.xz
+	--output ./tor.keyring \
+	--export 0xEF6E286DDA85EA2A4BA7DE684E2C6E8793298290
 
-if [[ $? -ne 0 ]]; then
-    echo "An error occured while verifying"
-    exit 1
+if ! gpgv \
+	--keyring "./tor.keyring" \
+	"tor-browser-linux64-${VERSION}_ALL.tar.xz.asc" \
+	"tor-browser-linux64-${VERSION}_ALL.tar.xz"; then
+	echo "An error occured while verifying"
+	exit 1
 fi
 
 # Extract
-tar -xvf tor-browser-linux64-${VERSION}_ALL.tar.xz
+tar -xvf "tor-browser-linux64-${VERSION}_ALL.tar.xz"
 
 # Install
-mv ${DIRNAME} ${TARGET}
-cd ${TARGET}
+mv "${DIRNAME}" "${TARGET}"
+cd "${TARGET}"
 ./start-tor-browser.desktop --register-app
 
-ln -sf ${TARGET}/Browser/start-tor-browser /usr/bin/tor-browser
+ln -sf "${TARGET}/Browser/start-tor-browser" "/usr/bin/tor-browser"
 
 update-desktop-database ~/.local/share/applications/
