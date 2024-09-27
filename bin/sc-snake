@@ -28,12 +28,12 @@ ERASER="\x20"
 
 # Snake vars
 FOOD=("-1" "-1") # x y
-DIRECTION=(1 0) # x y
+DIRECTION=(1 0)  # x y
 X=(0)
 Y=(0)
 
 function print_help() {
-    cat <<USAGE
+	cat <<USAGE
 ${FILENAME}
 Version ${VERSION}
 
@@ -48,250 +48,250 @@ USAGE
 }
 
 function parse_cli_arguments() {
-    local -r max_size=$(( MAX_W / 2))
+	local -r max_size=$((MAX_W / 2))
 
-    while test $# -gt 0; do
-        case ${1} in
-            "-c" | "--color")
-                test $# -ge 2 || return 1
+	while test $# -gt 0; do
+		case ${1} in
+		"-c" | "--color")
+			test $# -ge 2 || return 1
 
-                if [[ ${2} -lt 0 || ${2} -gt ${COLORS} ]]; then
-                    echo "Invalid color (0 <= c <= 256)"
-                    return 1
-                fi
+			if [[ ${2} -lt 0 || ${2} -gt ${COLORS} ]]; then
+				echo "Invalid color (0 <= c <= 256)"
+				return 1
+			fi
 
-                COLOR=${2}
+			COLOR=${2}
 
-                shift 2
-                ;;
-            
-            "-s" | "--size")
-                test $# -ge 2 || return 1
+			shift 2
+			;;
 
-                if [[ ${2} -le 0 || ${2} -gt ${max_size} ]]; then
-                    echo "Invalid size (0 <= s <= ${max_size})"
-                    return 1
-                fi
+		"-s" | "--size")
+			test $# -ge 2 || return 1
 
-	            # shellcheck disable=SC2207
-                X=($(seq 1 "${2}"))
-                for (( i = 1; i < ${2}; i++ )); do
-                    Y+=(0);
-                done
+			if [[ ${2} -le 0 || ${2} -gt ${max_size} ]]; then
+				echo "Invalid size (0 <= s <= ${max_size})"
+				return 1
+			fi
 
-                shift 2
-                ;;
+			# shellcheck disable=SC2207
+			X=($(seq 1 "${2}"))
+			for ((i = 1; i < ${2}; i++)); do
+				Y+=(0)
+			done
 
-            "-t" | "--time")
-                test $# -ge 2 || return 1
+			shift 2
+			;;
 
-                INTERVAL=${2}
+		"-t" | "--time")
+			test $# -ge 2 || return 1
 
-                shift 2
-                ;;
+			INTERVAL=${2}
 
-            "-r" | "--rainbow")
-                RAINBOW=1
+			shift 2
+			;;
 
-                shift
-                ;;
+		"-r" | "--rainbow")
+			RAINBOW=1
 
-            "-h" | "--help")
-                print_help
-                exit 0
-                ;;
-            
-            "-v" | "--version")
-                echo "${FILENAME} -- ${VERSION}"
-                exit 0
-                ;;
-            
-            "--" )
-                break
-                ;;
-            
-            *)
-                return 1
-            ;;
-        esac
-    done
+			shift
+			;;
+
+		"-h" | "--help")
+			print_help
+			exit 0
+			;;
+
+		"-v" | "--version")
+			echo "${FILENAME} -- ${VERSION}"
+			exit 0
+			;;
+
+		"--")
+			break
+			;;
+
+		*)
+			return 1
+			;;
+		esac
+	done
 }
 
 # Read a key then send signal to the subprocess
 # Take only one argument, ${1} -> PID
 function handle_key() {
-    read -r -n1 pressed_key
+	read -r -n1 pressed_key
 
-    case ${pressed_key} in
-        z | Z)
-            kill -SIGALRM "${1}"
-            ;;
+	case ${pressed_key} in
+	z | Z)
+		kill -SIGALRM "${1}"
+		;;
 
-        q | Q)
-            kill -SIGUSR1 "${1}"
-            ;;
+	q | Q)
+		kill -SIGUSR1 "${1}"
+		;;
 
-        s | S)
-            kill -SIGUSR2 "${1}"
-            ;;
+	s | S)
+		kill -SIGUSR2 "${1}"
+		;;
 
-        d | D)
-            kill -SIGBUS "${1}"
-            ;;
-    esac
+	d | D)
+		kill -SIGBUS "${1}"
+		;;
+	esac
 }
 
 function handle_keys() {
-    while :; do
-        handle_key "${1}"
-    done
+	while :; do
+		handle_key "${1}"
+	done
 }
 
 function random_food() {
-    local -r x=$((RANDOM % MAX_W))
-    local -r y=$((RANDOM % MAX_H))
+	local -r x=$((RANDOM % MAX_W))
+	local -r y=$((RANDOM % MAX_H))
 
-    FOOD=("${x}" "${y}")
+	FOOD=("${x}" "${y}")
 }
 
 function print_head() {
-    if [[ ${RAINBOW} -eq 1 ]]; then
-        COLOR=$((RANDOM % COLORS))
-    fi
+	if [[ ${RAINBOW} -eq 1 ]]; then
+		COLOR=$((RANDOM % COLORS))
+	fi
 
-    tput cup "${Y[-1]}" "${X[-1]}"
+	tput cup "${Y[-1]}" "${X[-1]}"
 
-    printf "\e[38;5;%sm${BLOCK}" "${COLOR}"
+	printf "\e[38;5;%sm${BLOCK}" "${COLOR}"
 }
 
 function clear_screen() {
-    # Erase the tail
+	# Erase the tail
 
-    tput cup "${Y[0]}" "${X[0]}"
+	tput cup "${Y[0]}" "${X[0]}"
 
 	# shellcheck disable=SC2059
-    printf "${ERASER}"
+	printf "${ERASER}"
 }
 
 # It is supposed to be a subprocess too
 function check_death() {
-    for (( i = 0; i < $(( ${#X[@]} - 1)) ; i++ )); do
-        if [[
-            ${X[-1]} -eq ${X[${i}]} && \
-            ${Y[-1]} -eq ${Y[${i}]}
-        ]]; then
-            kill -SIGXFSZ "${1}"
-        fi
-    done
+	for ((i = 0; i < $((${#X[@]} - 1)); i++)); do
+		if [[ 
+			${X[-1]} -eq ${X[${i}]} &&
+			${Y[-1]} -eq ${Y[${i}]} ]] \
+			; then
+			kill -SIGXFSZ "${1}"
+		fi
+	done
 }
 
 function update() {
-    # Check death
-    check_death $$ &
+	# Check death
+	check_death $$ &
 
-    # Check if the food is eaten
-    if [[ 
-        ${X[-1]} -eq ${FOOD[0]} && \
-        ${Y[-1]} -eq ${FOOD[1]} 
-    ]]; then
-        X=(0 "${X[@]}")
-        Y=(0 "${Y[@]}")
-        FOOD=("-1" "-1")
-    fi
+	# Check if the food is eaten
+	if [[ 
+		${X[-1]} -eq ${FOOD[0]} &&
+		${Y[-1]} -eq ${FOOD[1]} ]] \
+		; then
+		X=(0 "${X[@]}")
+		Y=(0 "${Y[@]}")
+		FOOD=("-1" "-1")
+	fi
 
-    # Generate a new food
-    if [[
-        ${FOOD[1]} -eq "-1" && \
-        ${FOOD[0]} -eq "-1"
-    ]]; then
-            random_food
-    fi
+	# Generate a new food
+	if [[ 
+		${FOOD[1]} -eq "-1" &&
+		${FOOD[0]} -eq "-1" ]] \
+		; then
+		random_food
+	fi
 
-    # Append a ${BLOCK} to the head
-    X+=($((X[-1] + DIRECTION[0])))
-    Y+=($((Y[-1] + DIRECTION[1])))
+	# Append a ${BLOCK} to the head
+	X+=($((X[-1] + DIRECTION[0])))
+	Y+=($((Y[-1] + DIRECTION[1])))
 
-    # Pop the tail
-    X=("${X[@]:1}")
-    Y=("${Y[@]:1}")
+	# Pop the tail
+	X=("${X[@]:1}")
+	Y=("${Y[@]:1}")
 
-    # Check out of bounds
-    [[ ${X[-1]} -lt 0 ]] && X[-1]=$((MAX_W - 1))
-    [[ ${X[-1]} -gt $((MAX_W - 1)) ]] && X[-1]=0
-    [[ ${Y[-1]} -lt 0 ]] && Y[-1]=$((MAX_H - 1))
-    [[ ${Y[-1]} -gt $((MAX_H - 1)) ]] && Y[-1]=0
+	# Check out of bounds
+	[[ ${X[-1]} -lt 0 ]] && X[-1]=$((MAX_W - 1))
+	[[ ${X[-1]} -gt $((MAX_W - 1)) ]] && X[-1]=0
+	[[ ${Y[-1]} -lt 0 ]] && Y[-1]=$((MAX_H - 1))
+	[[ ${Y[-1]} -gt $((MAX_H - 1)) ]] && Y[-1]=0
 }
 
 function print_screen() {
-    print_head
-    tput cup "${FOOD[1]}" "${FOOD[0]}"
-    # shellcheck disable=SC2059
-    printf "\e[38;5;255m${BLOCK}"
+	print_head
+	tput cup "${FOOD[1]}" "${FOOD[0]}"
+	# shellcheck disable=SC2059
+	printf "\e[38;5;255m${BLOCK}"
 }
 
 function _move_left() {
-    [[ ${DIRECTION[0]} -ne 1 ]] && DIRECTION=(-1 0)
+	[[ ${DIRECTION[0]} -ne 1 ]] && DIRECTION=(-1 0)
 }
 
 function _move_right() {
-    [[ ${DIRECTION[0]} -ne -1 ]] && DIRECTION=(1 0)
+	[[ ${DIRECTION[0]} -ne -1 ]] && DIRECTION=(1 0)
 }
 
 function _move_up() {
-    [[ ${DIRECTION[1]} -ne 1 ]] && DIRECTION=(0 -1)
+	[[ ${DIRECTION[1]} -ne 1 ]] && DIRECTION=(0 -1)
 }
 
 function _move_down() {
-    [[ ${DIRECTION[1]} -ne -1 ]] && DIRECTION=(0 1)
+	[[ ${DIRECTION[1]} -ne -1 ]] && DIRECTION=(0 1)
 }
 
 function snake_init() {
-    trap "_move_down" SIGUSR2
-    trap "_move_up" SIGALRM 
-    trap "_move_right" SIGBUS
-    trap "_move_left" SIGUSR1
-    trap "curses_end" SIGXFSZ
+	trap "_move_down" SIGUSR2
+	trap "_move_up" SIGALRM
+	trap "_move_right" SIGBUS
+	trap "_move_left" SIGUSR1
+	trap "curses_end" SIGXFSZ
 }
 
 # Sub process
 function snake() {
-    snake_init
+	snake_init
 
-    while :; do
-        clear_screen
-        update
-        print_screen
+	while :; do
+		clear_screen
+		update
+		print_screen
 
-        sleep "${INTERVAL}"
-    done
+		sleep "${INTERVAL}"
+	done
 }
 
 function cleanup() {
-    # Killing sub processes
-    kill "$(jobs -pr)"
+	# Killing sub processes
+	kill "$(jobs -pr)"
 
-    curses_end
+	curses_end
 }
 
 # Overriding curses_init from `./curses.sh`
 function curses_init() {
-    stty -echo
-    tput smcup
-    tput civis
-    tput clear
+	stty -echo
+	tput smcup
+	tput civis
+	tput clear
 
-    trap cleanup HUP TERM WINCH EXIT SIGINT SIGTERM SIGXFSZ
+	trap cleanup HUP TERM WINCH EXIT SIGINT SIGTERM SIGXFSZ
 }
 
 function main() {
-    parse_cli_arguments "${@}" || exit 1
+	parse_cli_arguments "${@}" || exit 1
 
-    curses_init
-    
-    snake &
-    handle_keys ${!}
+	curses_init
 
-    curses_reset
+	snake &
+	handle_keys ${!}
+
+	curses_reset
 }
 
 main "${@}"

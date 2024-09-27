@@ -137,9 +137,9 @@ function build_wall() {
 			COLOR=$((RANDOM % COLORS))
 		fi
 
-        tput cup "${y}" "${x}"
+		tput cup "${y}" "${x}"
 
-	    # shellcheck disable=SC2059
+		# shellcheck disable=SC2059
 		printf "\e[38;5;${COLOR}m${BLOCK}"
 		sleep "${INTERVAL}"
 

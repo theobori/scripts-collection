@@ -4,24 +4,24 @@
 
 # Initialize the terminal
 function curses_init() {
-    stty -echo
-    tput smcup
-    tput civis
-    tput clear
-    trap curses_end HUP TERM INT WINCH
+	stty -echo
+	tput smcup
+	tput civis
+	tput clear
+	trap curses_end HUP TERM INT WINCH
 }
 
 # Reset the terminal attributes with the default ones
 function curses_reset() {
-    tput reset
-    tput rmcup
-    tput cnorm
-    stty echo
-    tput sgr0
+	tput reset
+	tput rmcup
+	tput cnorm
+	stty echo
+	tput sgr0
 }
 
 # End the curses session
 function curses_end() {
-    curses_reset
-    exit 0
+	curses_reset
+	exit 0
 }
