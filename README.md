@@ -1,5 +1,9 @@
 # Scripts collection
 
+[![build](https://github.com/theobori/scripts-collection/actions/workflows/build.yml/badge.svg)](https://github.com/theobori/scripts-collection/actions/workflows/build.yml) [![lint](https://github.com/theobori/scripts-collection/actions/workflows/lint.yml/badge.svg)](https://github.com/theobori/scripts-collection/actions/workflows/lint.yml)
+
+[![built with nix](https://builtwithnix.org/badge.svg)](https://builtwithnix.org)
+
 This repository contains some shell scripts I have made. Most of them are made for Bash.
 
 ## 📖 How to build and run ?
@@ -24,6 +28,8 @@ PREFIX_DIR=~/.local/ make install
 If you want to help the project, you can follow the guidelines in [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## ℹ️ Scripts informations
+
+If you want to override the scripts that will be installed, feel free to edit the `INSTALL_SCRIPTS` target in the Makefile.
 
 Here are informations about the scripts.
 
