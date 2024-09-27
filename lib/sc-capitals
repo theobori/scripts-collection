@@ -10,9 +10,9 @@ COUNTRIES_TOTAL=$(echo "${COUNTRIES}" | wc -l)
 readonly COUNTRIES_TOTAL
 
 function random_country() {
-    local -r index=$((RANDOM % COUNTRIES_TOTAL + 1))
+	local -r index=$((RANDOM % COUNTRIES_TOTAL + 1))
 
-    echo "${COUNTRIES}" | \
-        head -n ${index} | \
-        tail -n 1
+	echo "${COUNTRIES}" |
+		head -n ${index} |
+		tail -n 1
 }

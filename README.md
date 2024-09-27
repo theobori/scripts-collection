@@ -1,6 +1,6 @@
 # Scripts collection
 
-[![build](https://github.com/theobori/scripts-collection/actions/workflows/build.yml/badge.svg)](https://github.com/theobori/scripts-collection/actions/workflows/build.yml) [![lint](https://github.com/theobori/scripts-collection/actions/workflows/lint.yml/badge.svg)](https://github.com/theobori/scripts-collection/actions/workflows/lint.yml)
+[![build](https://github.com/theobori/scripts-collection/actions/workflows/build.yml/badge.svg)](https://github.com/theobori/scripts-collection/actions/workflows/build.yml)
 
 [![built with nix](https://builtwithnix.org/badge.svg)](https://builtwithnix.org)
 

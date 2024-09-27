@@ -84,7 +84,7 @@ function parse_cli_arguments() {
 
 	local -r exist=$(
 		# shellcheck disable=SC2153
-        echo "${CAPITALS}" |
+		echo "${CAPITALS}" |
 			jq "has(\"${COUNTRY}\")"
 	)
 

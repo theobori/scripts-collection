@@ -1,49 +1,38 @@
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    treefmt-nix.url = "github:numtide/treefmt-nix";
+    flake-utils.url = "github:numtide/flake-utils";
   };
 
   outputs =
-    { self, nixpkgs }:
-    let
-      supportedSystems = [
-        "x86_64-linux"
-        "aarch64-linux"
-        "x86_64-darwin"
-        "aarch64-darwin"
-      ];
-
-      forEachSupportedSystem =
-        f: nixpkgs.lib.genAttrs supportedSystems (system: f { pkgs = import nixpkgs { inherit system; }; });
-    in
     {
-      packages = forEachSupportedSystem (
-        { pkgs }:
-        {
-          default = pkgs.callPackage ./. { };
-        }
-      );
+      self,
+      nixpkgs,
+      treefmt-nix,
+      flake-utils,
+    }:
+    flake-utils.lib.eachDefaultSystem (
+      system:
+      let
+        pkgs = nixpkgs.legacyPackages.${system};
 
-      devShells = forEachSupportedSystem (
-        { pkgs }:
-        {
-          default = pkgs.mkShell {
-            packages = with pkgs; [
-              libnotify
-              figlet
-              mlocate
-              curl
-              wget
-              gnupg
-              jq
-              unzip
-              desktop-file-utils
-              ncurses5
-              xdg-utils
-              bash
-            ];
-          };
-        }
-      );
-    };
+        treefmtEval = treefmt-nix.lib.evalModule pkgs ./treefmt.nix;
+      in
+      {
+        packages = {
+          default = pkgs.callPackage ./. { };
+        };
+
+        devShells = {
+          default = pkgs.mkShell { packages = self.packages.${system}.default.buildInputs; };
+        };
+
+        formatter = treefmtEval.config.build.wrapper;
+
+        checks = {
+          formatting = treefmtEval.config.build.check self;
+        };
+      }
+    );
 }

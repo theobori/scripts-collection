@@ -1,15 +1,16 @@
-name: build
+name: Nix Flake Build And Check
 
 on:
-  pull_request:
   push:
+  pull_request:
   workflow_dispatch:
 
 jobs:
-  build:
+  check:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - uses: cachix/install-nix-action@v27
-    - run: nix build
-    - run: nix flake check
+      - uses: actions/checkout@v3
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+      - run: nix build
+      - run: nix flake check

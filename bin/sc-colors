@@ -109,7 +109,7 @@ function _print_line() {
 
 	for ((y = 1; y <= lines; y++)); do
 		local line
-        line=$(echo "${1}" | head -n ${line_y} | tail -n 1)
+		line=$(echo "${1}" | head -n ${line_y} | tail -n 1)
 
 		for ((n = 0; n < ${2}; n++)); do
 			local color=$((CURRENT_COLOR + n))
