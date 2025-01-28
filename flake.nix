@@ -25,7 +25,7 @@
         };
 
         devShells = {
-          default = pkgs.mkShell { packages = self.packages.${system}.default.buildInputs; };
+          default = pkgs.mkShell { packages = self.packages.${system}.default.devPackages; };
         };
 
         formatter = treefmtEval.config.build.wrapper;
